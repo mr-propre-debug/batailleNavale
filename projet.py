@@ -139,7 +139,7 @@ def solo():
         -1 sous-marin : 2 cases (affiche 2)
     """
 
-    ships = {2 : ["A0", "B0"], 3 : ["A3", "B3", "C3"]} # dictionnaire contenant la localisation des bateaux
+    ships = {2 : ["E0", "F0"], 3 : ["C2", "C3", "C4"], 3 : ["B7", "C7", "D7"], 4 : ["E3", "E4", "E5", "E6"], 5 : ["G3", "G4", "G5", "G6", "G7"]} # dictionnaire contenant la localisation des bateaux
         
     for ship in ships:
         for cases in ships[ship]:
