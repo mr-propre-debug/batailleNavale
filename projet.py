@@ -278,13 +278,13 @@ def option_menu():
     canvas1 = tk.Canvas(master, width=400, height=300, relief='raised')
     canvas1.pack()
 
-    # label2 = tk.Label(master, text='votre pseudo :')
-    # label2.config(font=('assets/font.ttf', 10))
-    # canvas1.create_window(200, 100, window=label2)
+    label1 = tk.Label(master, text='volume :')
+    label1.config(font=('assets/font.ttf', 10))
+    canvas1.create_window(200, 100, window=label1)
 
-    w = tk.Scale(master, from_=0, to=100, tickinterval=0.1, orient="horizontal")
+    w = tk.Scale(master, from_=0, to=100, tickinterval=50, orient="horizontal")
     canvas1.create_window(300, 150, window=w)
-    w.set(1.0)
+    w.set(50)
     
     def volume_value():
         global volume
