@@ -99,8 +99,6 @@ def solo():
     def get_username():
         global username # je dois mettre ça comme ça car sinon ça ne fonction pas
         username = entry1.get()
-        print(entry1.get())
-        print(username)
         root.destroy()
         
     button1 = tk.Button(text='valider', command=get_username, bg='brown', fg='white', font=('assets/font.ttf', 9, 'bold'))
@@ -156,8 +154,6 @@ def solo():
     
     playing = True
 
-    print(username)
-
     while playing:
         screen.fill((0,0,0))
         screen.blit(bgGame, (0,0))
@@ -190,7 +186,6 @@ def solo():
                                 
                                 else:
                                     successfulShoots.append(button)
-                                    print(username)
                                     score += 15 # ajoute 15 au score car on a deviné qu'il y avait un bateau
                                     explosion.play() # joue le son de l'explosion
                                     buttons[button].changeImage(image=pygame.image.load("assets/images/explosion.png"), screen=screen) # change l'image en explosion car il y a un bateau qui a été touché par la torpille
@@ -217,7 +212,6 @@ def solo():
         clock.tick(60) #nombre d'image par seconde
 
         if len(successfulShoots) == numbShips:
-            print(username)
             with open("score.json", "ab+") as ab:
                 ab.close()
                 f = open('score.json','r+')
@@ -230,7 +224,6 @@ def solo():
             #pour ouvrir le fichier pour ajouter le score
             with open("score.json", 'r') as f:
                 scores = json.load(f)
-            print(username)
             add_score(scores, user=username, score=score)
             #pour ajouter réellement le score dans le fichier de sauvegarde
             with open('score.json', 'w') as f:
