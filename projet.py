@@ -1,10 +1,4 @@
 """
-Exemples de fonctionnalités à mettre en place (les premières sont les plus simples) :
-
-•on peut jouer à deux joueurs dans la console
-
-•à chaque tour de jeu, les grilles du joueur, et de l'adversaire (sauf en mode solo), sont mises à jour et affichées
-
 On peut avoir la totalité des points sans forcément répondre à toutes les exigences 
 précédentes, tout dépend de la qualité globable du travail.
 """
