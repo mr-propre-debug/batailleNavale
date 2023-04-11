@@ -47,6 +47,7 @@ pygame.display.set_caption("Menu")
 bgMenu = pygame.image.load("assets/images/background.jpg")
 bgPlay = pygame.image.load("assets/images/background play.jpg")
 bgGame = pygame.image.load("assets/images/background game.jpg")
+bgPos = pygame.image.load("assets/images/background pos.jpg")
 
 #set up des musiques du jeu
 menuMusic = pygame.mixer.Sound("assets/musiques/Menu Music.mp3")
@@ -60,24 +61,24 @@ plop = pygame.mixer.Sound("assets/musiques/plop.mp3")
 #volume du jeu
 volume = 1.0
 
+
 #pour la police d'écriture
 def get_font(size): # Returns Press-Start-2P in the desired size
     return pygame.font.Font("assets/font.ttf", size)
 
 #pour "ajouter" le score du joueur dans le mode jeu
-def add_score(scores, user, score, modeJeu):
-    if not modeJeu in scores:
-        scores[modeJeu] = {}
-    if not user in scores[modeJeu]:
-        scores[modeJeu][user] = {}
-        scores[modeJeu][user]['score'] = 0
-    scores[modeJeu][user]['score'] += score
+def add_score(scores, user, score):
+    if not user in scores:
+        scores[user] = {}
+        scores[user]= 0
+    scores[user] += score
+
 
 def solo():
+    
     menuMusic.stop()
     gameMusic.play()
-    
-    username  = ""
+
     #pour avoir le nom d'utilisateur du joueur pour faire les scores
     root= tk.Tk()
 
@@ -94,17 +95,19 @@ def solo():
 
     entry1 = tk.Entry(root) 
     canvas1.create_window(200, 140, window=entry1)
-
+    
     def get_username():
-        global username
+        global username # je dois mettre ça comme ça car sinon ça ne fonction pas
         username = entry1.get()
+        print(entry1.get())
+        print(username)
         root.destroy()
-        
         
     button1 = tk.Button(text='valider', command=get_username, bg='brown', fg='white', font=('assets/font.ttf', 9, 'bold'))
     canvas1.create_window(200, 180, window=button1)
     
     root.mainloop()
+
     score = 0
 
     failedShoots = [] #pour mettre les tirs ratés
@@ -135,11 +138,11 @@ def solo():
         Voici la liste des bâtiments disponibles pour chaque joueur :
         -1 porte-avions : 5 cases (affiche 5)
         -1 croiseur : 4 cases (affiche 4)
-        -2 contre-torpilleurs : 3 cases (affiche 3)
+        -2 contre-torpilleurs : 3 cases (affiche 3 et 6)
         -1 sous-marin : 2 cases (affiche 2)
     """
 
-    ships = {2 : ["E0", "F0"], 3 : ["C2", "C3", "C4"], 3 : ["B7", "C7", "D7"], 4 : ["E3", "E4", "E5", "E6"], 5 : ["G3", "G4", "G5", "G6", "G7"]} # dictionnaire contenant la localisation des bateaux
+    ships = {2 : ["E0", "F0"], 3 : ["C2", "C3", "C4"], 6 : ["B7", "C7", "D7"], 4 : ["E3", "E4", "E5", "E6"], 5 : ["G3", "G4", "G5", "G6", "G7"]} # dictionnaire contenant la localisation des bateaux
         
     for ship in ships:
         for cases in ships[ship]:
@@ -152,7 +155,9 @@ def solo():
         numbShips += len(i)
     
     playing = True
-    
+
+    print(username)
+
     while playing:
         screen.fill((0,0,0))
         screen.blit(bgGame, (0,0))
@@ -185,6 +190,7 @@ def solo():
                                 
                                 else:
                                     successfulShoots.append(button)
+                                    print(username)
                                     score += 15 # ajoute 15 au score car on a deviné qu'il y avait un bateau
                                     explosion.play() # joue le son de l'explosion
                                     buttons[button].changeImage(image=pygame.image.load("assets/images/explosion.png"), screen=screen) # change l'image en explosion car il y a un bateau qui a été touché par la torpille
@@ -209,8 +215,9 @@ def solo():
             #pour actualiser l'affichage
         pygame.display.flip()
         clock.tick(60) #nombre d'image par seconde
-        
+
         if len(successfulShoots) == numbShips:
+            print(username)
             with open("score.json", "ab+") as ab:
                 ab.close()
                 f = open('score.json','r+')
@@ -223,12 +230,19 @@ def solo():
             #pour ouvrir le fichier pour ajouter le score
             with open("score.json", 'r') as f:
                 scores = json.load(f)
-            add_score(scores, username, score, 'solo')
+            print(username)
+            add_score(scores, user=username, score=score)
             #pour ajouter réellement le score dans le fichier de sauvegarde
             with open('score.json', 'w') as f:
                 json.dump(scores, f)
-            
+
             main_menu()
+
+def ordi():
+    menuMusic.stop()
+    positioningMusic.play()
+    screen.fill((0,0,0))
+    screen.blit(bgPos, (0,0))
 
 
 def play_menu():
@@ -275,15 +289,15 @@ def option_menu():
 
     master = tk.Tk()
     
-    canvas1 = tk.Canvas(master, width=400, height=300, relief='raised')
-    canvas1.pack()
+    canvas10 = tk.Canvas(master, width=400, height=300, relief='raised')
+    canvas10.pack()
 
-    label1 = tk.Label(master, text='volume :')
-    label1.config(font=('assets/font.ttf', 10))
-    canvas1.create_window(200, 100, window=label1)
+    label10 = tk.Label(master, text='volume :')
+    label10.config(font=('assets/font.ttf', 10))
+    canvas10.create_window(200, 100, window=label10)
 
     w = tk.Scale(master, from_=0, to=100, tickinterval=50, orient="horizontal")
-    canvas1.create_window(300, 150, window=w)
+    canvas10.create_window(300, 150, window=w)
     w.set(50)
     
     def volume_value():
@@ -296,8 +310,8 @@ def option_menu():
         master.destroy()
         main_menu()
 
-    button1 = tk.Button(text="Appliquer", command=volume_value).pack()
-    canvas1.create_window(200, 180, window=button1)
+    button10 = tk.Button(text="Appliquer", command=volume_value).pack()
+    canvas10.create_window(200, 180, window=button10)
 
     master.mainloop()
 
