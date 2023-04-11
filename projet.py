@@ -26,6 +26,7 @@ from pygame.locals import *
 from button import Button #module qui est dans le zip que j'ai trouvé pour faire des boutons sur pygame
 
 import tkinter as tk #servira (pour l'instant) à demander le(s) pseudo(s)
+from tkinter import messagebox
 
 import json
 
@@ -140,7 +141,7 @@ def solo():
         -1 sous-marin : 2 cases (affiche 2)
     """
 
-    ships = {2 : ["E0", "F0"], 3 : ["C2", "C3", "C4"], 6 : ["B7", "C7", "D7"], 4 : ["E3", "E4", "E5", "E6"], 5 : ["G3", "G4", "G5", "G6", "G7"]} # dictionnaire contenant la localisation des bateaux
+    ships = {2 : ["E0", "F0"], 3 : ["C2", "C3", "C4"], "3" : ["B7", "C7", "D7"], 4 : ["E3", "E4", "E5", "E6"], 5 : ["G3", "G4", "G5", "G6", "G7"]} # dictionnaire contenant la localisation des bateaux
         
     for ship in ships:
         for cases in ships[ship]:
@@ -169,7 +170,7 @@ def solo():
         #pour les events bouton et quit
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                menuMusic.stop()
+                gameMusic.stop()
                 pygame.quit()
                 sys.exit()
             
@@ -179,10 +180,10 @@ def solo():
                     if buttons[button].checkForInput(game_mouse_pos):
                         Gridcase = [*button] # sépare "A0" pour après qu'on puisse utiliser les valeur pour chercher dans la grille 
                         #pour voir si il y a un bateau sur la case ou non
-                        if grid[rows[Gridcase[0]]][int(Gridcase[1])][button] >= 2: # vérifie si il y a un bateau sur la case
+                        if int(grid[rows[Gridcase[0]]][int(Gridcase[1])][button]) >= 2: # vérifie si il y a un bateau sur la case
                             if button in ships[grid[rows[Gridcase[0]]][int(Gridcase[1])][button]]: # verifie si il y a bel et bien le bateau
                                 if button in successfulShoots: #vérifie si la case à déjà été torpillée
-                                    print("case déja devinée") # mettre un message si déjà torpilée autre que dans la console
+                                    messagebox.showwarning("torpille", "ATTENTION VOUS AVEZ DEJA TORPILLE ICI") # mettre un message si déjà torpilée autre que dans la console
                                 
                                 else:
                                     successfulShoots.append(button)
@@ -191,7 +192,7 @@ def solo():
                                     buttons[button].changeImage(image=pygame.image.load("assets/images/explosion.png"), screen=screen) # change l'image en explosion car il y a un bateau qui a été touché par la torpille
                         else:
                             if button in failedShoots:
-                                print("case déja devinée")
+                                messagebox.showwarning("torpille", "ATTENTION VOUS AVEZ DEJA TORPILLE ICI")
                             else:
                                 failedShoots.append(button) #ajouts des cases où le tir est raté
                                 plop.play() # joue le son d'un objet tombant dans l'eau comme la torpille
@@ -234,8 +235,124 @@ def solo():
 def ordi():
     menuMusic.stop()
     positioningMusic.play()
+    
     screen.fill((0,0,0))
     screen.blit(bgPos, (0,0))
+
+    columns = ["0","1","2","3","4","5","6","7","8","9"] # colonnes
+    rows = {"A":0, "B":1, "C":2, "D":3, "E":4, "F":5, "G":6, "H":7, "I":8, "J":9}
+    
+    global userbutton
+    global userGrid
+    userButtons = {}
+    userGrid = []
+
+    y = 90 #pour les lignes des boutons sachant que ma fenetre = 720 de large et les 10 boutons prennent 600 de large (60px par bouton) je ne sais comment expliquer mais (720 -600) / 2 = 60 sauf qu'avec 90 ça à l'air un peu près centré
+        
+    #création des boutons
+    for row in rows:
+        x = 340
+        gridRow = []
+        for column in columns:
+            userButtons[row+column] = Button(image=pygame.image.load("assets/images/Game Square.png"), pos=(x,y), text_input=row+column, font=get_font(25), base_color="#d7fcd4", hovering_color="White")
+            x += 60
+            gridRow.append({row+column : 0})
+        userGrid.append(gridRow)
+        y += 60
+    
+    userShips = []
+
+    while len(userShips) <= 17:
+
+        ordi1_mouse_pos = pygame.mouse.get_pos()
+        
+        for userbutton in userButtons:
+            userButtons[userbutton].changeColor(ordi1_mouse_pos)   
+            userButtons[userbutton].update(screen)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                menuMusic.stop()
+                pygame.quit()
+                sys.exit()
+            
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for button in userButtons:
+                    if userButtons[button].checkForInput(ordi1_mouse_pos):
+                        if button in userShips:
+                            print("coucou")
+                        else:
+                            userShips.append(button)
+                            userButtons[button].changeImage(image=pygame.image.load("assets/images/rate.png"), screen=screen)
+                
+            elif event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    gameMusic.stop()
+                    pygame.quit()
+                    sys.exit()
+
+                #pour actualiser l'affichage
+            pygame.display.flip()
+            clock.tick(60) #nombre d'image par seconde
+    
+    positioningMusic.stop()
+    gameMusic.play()
+
+    screen.fill((0,0,0))
+    screen.blit(bgPlay, (0,0))
+
+    columns = ["0","1","2","3","4","5","6","7","8","9"] # colonnes
+    rows = {"A":0, "B":1, "C":2, "D":3, "E":4, "F":5, "G":6, "H":7, "I":8, "J":9}
+    
+    failedUserShoots = [] #pour mettre les tirs ratés du joueur
+    successfulUserShoots = [] #tirs réussis du joueur
+
+    FailedOrdiShoots = []
+    successfulOrdiShoots = []
+        
+    buttons = {} # dictionnaire avec tous les boutons
+    grid = [] # pour la grille
+
+    y = 90 #pour les lignes des boutons sachant que ma fenetre = 720 de large et les 10 boutons prennent 600 de large (60px par bouton) je ne sais comment expliquer mais (720 -600) / 2 = 60 sauf qu'avec 90 ça à l'air un peu près centré
+        
+    #création des boutons
+    for row in rows:
+        x = 340
+        gridRow = []
+        for column in columns:
+            buttons[row+column] = Button(image=pygame.image.load("assets/images/Game Square.png"), pos=(x,y), text_input=row+column, font=get_font(25), base_color="#d7fcd4", hovering_color="White")
+            x += 60
+            gridRow.append({row+column : 0})
+        grid.append(gridRow)
+        y += 60
+
+    while True:
+
+        ordi2_mouse_pos = pygame.mouse.get_pos()
+
+        for button in buttons:
+            buttons[button].changeColor(ordi2_mouse_pos)
+            buttons[button].update(screen)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                gameMusic.stop()
+                pygame.quit()
+                sys.exit()
+            
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                for button in buttons:
+                    pass
+            
+            elif event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    gameMusic.stop()
+                    pygame.quit()
+                    sys.exit()
+
+            #pour actualiser l'affichage
+            pygame.display.flip()
+            clock.tick(60) #nombre d'image par seconde
 
 
 def play_menu():
@@ -267,8 +384,12 @@ def play_menu():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if playBack.checkForInput(play_mouse_pos):
                     main_menu()
+                
                 elif playSolo.checkForInput(play_mouse_pos):
                     solo()
+
+                elif playOrdi.checkForInput(play_mouse_pos):
+                    ordi()
             
             #pour actualiser l'affichage
             pygame.display.flip()
