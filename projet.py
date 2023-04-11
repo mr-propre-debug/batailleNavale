@@ -133,26 +133,12 @@ def solo():
     
     """
         Les bâtiments ne doivent jamais se toucher
-
-        Voici la liste des bâtiments disponibles pour chaque joueur :
-        -1 porte-avions : 5 cases (affiche 5)
-        -1 croiseur : 4 cases (affiche 4)
-        -2 contre-torpilleurs : 3 cases (affiche 3 et 6)
-        -1 sous-marin : 2 cases (affiche 2)
     """
 
-    ships = {2 : ["E0", "F0"], 3 : ["C2", "C3", "C4"], "3" : ["B7", "C7", "D7"], 4 : ["E3", "E4", "E5", "E6"], 5 : ["G3", "G4", "G5", "G6", "G7"]} # dictionnaire contenant la localisation des bateaux
-        
-    for ship in ships:
-        for cases in ships[ship]:
-            gridCase = [*cases]
-            grid[rows[gridCase[0]]][int(gridCase[1])][cases] = ship
+    ships = ["E0", "F0", "C2", "C3", "C4", "B7", "C7", "D7", "E3", "E4", "E5", "E6", "G3", "G4", "G5", "G6", "G7"] # lsite contenant la localisation des bateaux
     
-    numbShips = 0
-    
-    for i in ships.values():
-        numbShips += len(i)
-    
+    numbShips = len(ships)
+
     playing = True
 
     while playing:
@@ -178,18 +164,16 @@ def solo():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 for button in buttons:
                     if buttons[button].checkForInput(game_mouse_pos):
-                        Gridcase = [*button] # sépare "A0" pour après qu'on puisse utiliser les valeur pour chercher dans la grille 
                         #pour voir si il y a un bateau sur la case ou non
-                        if int(grid[rows[Gridcase[0]]][int(Gridcase[1])][button]) >= 2: # vérifie si il y a un bateau sur la case
-                            if button in ships[grid[rows[Gridcase[0]]][int(Gridcase[1])][button]]: # verifie si il y a bel et bien le bateau
-                                if button in successfulShoots: #vérifie si la case à déjà été torpillée
-                                    messagebox.showwarning("torpille", "ATTENTION VOUS AVEZ DEJA TORPILLE ICI") # mettre un message si déjà torpilée autre que dans la console
+                        if button in ships: # verifie si il y a bel et bien le bateau
+                            if button in successfulShoots: #vérifie si la case à déjà été torpillée
+                                messagebox.showwarning("torpille", "ATTENTION VOUS AVEZ DEJA TORPILLE ICI") # mettre un message si déjà torpilée autre que dans la console
                                 
-                                else:
-                                    successfulShoots.append(button)
-                                    score += 15 # ajoute 15 au score car on a deviné qu'il y avait un bateau
-                                    explosion.play() # joue le son de l'explosion
-                                    buttons[button].changeImage(image=pygame.image.load("assets/images/explosion.png"), screen=screen) # change l'image en explosion car il y a un bateau qui a été touché par la torpille
+                            else:
+                                successfulShoots.append(button)
+                                score += 15 # ajoute 15 au score car on a deviné qu'il y avait un bateau
+                                explosion.play() # joue le son de l'explosion
+                                buttons[button].changeImage(image=pygame.image.load("assets/images/explosion.png"), screen=screen) # change l'image en explosion car il y a un bateau qui a été touché par la torpille
                         else:
                             if button in failedShoots:
                                 messagebox.showwarning("torpille", "ATTENTION VOUS AVEZ DEJA TORPILLE ICI")
@@ -262,7 +246,7 @@ def ordi():
     
     userShips = []
 
-    while len(userShips) <= 17:
+    while len(userShips) < 17:
 
         ordi1_mouse_pos = pygame.mouse.get_pos()
         
@@ -280,7 +264,7 @@ def ordi():
                 for button in userButtons:
                     if userButtons[button].checkForInput(ordi1_mouse_pos):
                         if button in userShips:
-                            print("coucou")
+                            messagebox.showwarning("ERREUR", "BATEAU DEJA PLACE ICI")
                         else:
                             userShips.append(button)
                             userButtons[button].changeImage(image=pygame.image.load("assets/images/rate.png"), screen=screen)
