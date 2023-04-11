@@ -1,19 +1,9 @@
 """
--raté : si la torpille est tombée dans l'eau ; et on change de joueur sauf dans le mode solo.
--touché : si la torpille est tombée sur un bâtiment ; le même joueur continue.
--coulé : si la torpille est tombée sur la dernière case non touchée d'un bâtiment ; le même joueur continue.
-
 Exemples de fonctionnalités à mettre en place (les premières sont les plus simples) :
-
-•on peut jouer en mode solo dans la console (même si la phase de placement n'est pas encore implémentée, on peut imaginer qu'on définit une grille fixe dans un premier temps)
 
 •on peut jouer à deux joueurs dans la console
 
 •à chaque tour de jeu, les grilles du joueur, et de l'adversaire (sauf en mode solo), sont mises à jour et affichées
-
-•la phase de placement des bateaux est implémentée
-
-•on peut jouer contre l'ordinateur
 
 On peut avoir la totalité des points sans forcément répondre à toutes les exigences 
 précédentes, tout dépend de la qualité globable du travail.
@@ -78,7 +68,7 @@ def add_score(scores, user, score):
 def solo():
     
     menuMusic.stop()
-    gameMusic.play()
+    # gameMusic.play()
 
     #pour avoir le nom d'utilisateur du joueur pour faire les scores
     root= tk.Tk()
@@ -123,13 +113,13 @@ def solo():
     #création des boutons
     for row in rows:
         x = 340
-        gridRow = []
         for column in columns:
             buttons[row+column] = Button(image=pygame.image.load("assets/images/Game Square.png"), pos=(x,y), text_input=row+column, font=get_font(25), base_color="#d7fcd4", hovering_color="White")
             x += 60
-            gridRow.append({row+column : 0})
-        grid.append(gridRow)
+            grid.append(row+column)
         y += 60
+
+    print(grid)
     
     """
         Les bâtiments ne doivent jamais se toucher
@@ -139,9 +129,7 @@ def solo():
     
     numbShips = len(ships)
 
-    playing = True
-
-    while playing:
+    while True:
         screen.fill((0,0,0))
         screen.blit(bgGame, (0,0))
 
@@ -170,7 +158,7 @@ def solo():
                                 messagebox.showwarning("torpille", "ATTENTION VOUS AVEZ DEJA TORPILLE ICI") # mettre un message si déjà torpilée autre que dans la console
                                 
                             else:
-                                successfulShoots.append(button)
+                                successfulShoots.append(button) # ajout de la case où le bateau a explosé
                                 score += 15 # ajoute 15 au score car on a deviné qu'il y avait un bateau
                                 explosion.play() # joue le son de l'explosion
                                 buttons[button].changeImage(image=pygame.image.load("assets/images/explosion.png"), screen=screen) # change l'image en explosion car il y a un bateau qui a été touché par la torpille
@@ -178,12 +166,10 @@ def solo():
                             if button in failedShoots:
                                 messagebox.showwarning("torpille", "ATTENTION VOUS AVEZ DEJA TORPILLE ICI")
                             else:
-                                failedShoots.append(button) #ajouts des cases où le tir est raté
+                                failedShoots.append(button) #ajouts de la case où le tir est raté
                                 plop.play() # joue le son d'un objet tombant dans l'eau comme la torpille
                                 buttons[button].changeImage(image=pygame.image.load("assets/images/rate.png"), screen=screen)
                                 score -= 3 # enlève 3 de score si la case est vide
-                                #afficher tirs ratés
-                        
 
                 #pour quitter avec echap
             elif event.type == KEYDOWN:
@@ -218,16 +204,14 @@ def solo():
 
 def ordi():
     menuMusic.stop()
-    positioningMusic.play()
+    # positioningMusic.play()
     
     screen.fill((0,0,0))
     screen.blit(bgPos, (0,0))
 
     columns = ["0","1","2","3","4","5","6","7","8","9"] # colonnes
     rows = {"A":0, "B":1, "C":2, "D":3, "E":4, "F":5, "G":6, "H":7, "I":8, "J":9}
-    
-    global userbutton
-    global userGrid
+
     userButtons = {}
     userGrid = []
 
@@ -236,12 +220,10 @@ def ordi():
     #création des boutons
     for row in rows:
         x = 340
-        gridRow = []
         for column in columns:
             userButtons[row+column] = Button(image=pygame.image.load("assets/images/Game Square.png"), pos=(x,y), text_input=row+column, font=get_font(25), base_color="#d7fcd4", hovering_color="White")
             x += 60
-            gridRow.append({row+column : 0})
-        userGrid.append(gridRow)
+            userGrid.append(row+column)
         y += 60
     
     userShips = []
@@ -280,13 +262,15 @@ def ordi():
             clock.tick(60) #nombre d'image par seconde
     
     positioningMusic.stop()
-    gameMusic.play()
+    # gameMusic.play()
 
     screen.fill((0,0,0))
     screen.blit(bgPlay, (0,0))
 
     columns = ["0","1","2","3","4","5","6","7","8","9"] # colonnes
     rows = {"A":0, "B":1, "C":2, "D":3, "E":4, "F":5, "G":6, "H":7, "I":8, "J":9}
+
+    comptShips = ["E0", "F0", "C2", "C3", "C4", "B7", "C7", "D7", "E3", "E4", "E5", "E6", "G3", "G4", "G5", "G6", "G7"] # lsite contenant la localisation des bateaux
     
     failedUserShoots = [] #pour mettre les tirs ratés du joueur
     successfulUserShoots = [] #tirs réussis du joueur
@@ -302,12 +286,10 @@ def ordi():
     #création des boutons
     for row in rows:
         x = 340
-        gridRow = []
         for column in columns:
             buttons[row+column] = Button(image=pygame.image.load("assets/images/Game Square.png"), pos=(x,y), text_input=row+column, font=get_font(25), base_color="#d7fcd4", hovering_color="White")
             x += 60
-            gridRow.append({row+column : 0})
-        grid.append(gridRow)
+            grid.append(row+column)
         y += 60
 
     while True:
@@ -326,8 +308,31 @@ def ordi():
             
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 for button in buttons:
-                    pass
-            
+                    if button in comptShips:
+                        if button in successfulUserShoots:
+                            messagebox.showwarning("WARNING", "TU AS DEJA TORPILLE ICI")
+                        else:
+                            successfulUserShoots.append(button)
+                            explosion.play()
+                            buttons[button].changeImage(image=pygame.image.load("assets/images/explosion.png"), screen=screen) # change l'image en explosion car il y a un bateau qui a été touché par la torpille
+                    else:
+                        if button in failedUserShoots:
+                            messagebox.showwarning("WARNING", "TU AS DEJA TORPILLE ICI")
+                        else:
+                            failedUserShoots.append(button)
+                            plop.play()
+                            shoot = random.choice(tuple(userGrid))
+                            while shoot in userGrid:
+                                if shoot in userShips:
+                                    userGrid.remove(shoot)
+                                    explosion.play()
+                                    messagebox.showwarning("TOUCHÉ", f"Votre bateau en {shoot} a été touché")
+                                    shoot = random.choice(tuple(userGrid))
+                                else:
+                                    userGrid.remove(shoot)
+                                    plop.play()
+                                    messagebox.showinfo("OUF", f"Une torpille a été envoyée en {shoot} mais hereusement rien a été touché")
+
             elif event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     gameMusic.stop()
@@ -338,6 +343,113 @@ def ordi():
             pygame.display.flip()
             clock.tick(60) #nombre d'image par seconde
 
+def multiLocal():
+    menuMusic.stop()
+    # positioningMusic.play()
+    
+    screen.fill((0,0,0))
+    screen.blit(bgPos, (0,0))
+
+    columns = ["0","1","2","3","4","5","6","7","8","9"] # colonnes
+    rows = {"A":0, "B":1, "C":2, "D":3, "E":4, "F":5, "G":6, "H":7, "I":8, "J":9}
+
+    player1Buttons = {}
+    player1Grid = []
+
+    y = 90 #pour les lignes des boutons sachant que ma fenetre = 720 de large et les 10 boutons prennent 600 de large (60px par bouton) je ne sais comment expliquer mais (720 -600) / 2 = 60 sauf qu'avec 90 ça à l'air un peu près centré
+        
+    #création des boutons
+    for row in rows:
+        x = 340
+        for column in columns:
+            player1Buttons[row+column] = Button(image=pygame.image.load("assets/images/Game Square.png"), pos=(x,y), text_input=row+column, font=get_font(25), base_color="#d7fcd4", hovering_color="White")
+            x += 60
+            player1Grid.append(row+column)
+        y += 60
+    
+    player1Ships = []
+
+    while len(player1Ships) < 17:
+
+        player1_mouse_pos = pygame.mouse.get_pos()
+        
+        for userbutton in player1Buttons:
+            player1Buttons[userbutton].changeColor(player1_mouse_pos)   
+            player1Buttons[userbutton].update(screen)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                menuMusic.stop()
+                pygame.quit()
+                sys.exit()
+            
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for button in player1Buttons:
+                    if player1Buttons[button].checkForInput(player1_mouse_pos):
+                        if button in player2Ships:
+                            messagebox.showwarning("ERREUR", "BATEAU DEJA PLACE ICI")
+                        else:
+                            player1Ships.append(button)
+                            player1Buttons[button].changeImage(image=pygame.image.load("assets/images/rate.png"), screen=screen)
+                
+            elif event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    gameMusic.stop()
+                    pygame.quit()
+                    sys.exit()
+
+                #pour actualiser l'affichage
+            pygame.display.flip()
+            clock.tick(60) #nombre d'image par seconde
+    
+    player2Buttons = {}
+    player2Grid = []
+
+    y = 90 #pour les lignes des boutons sachant que ma fenetre = 720 de large et les 10 boutons prennent 600 de large (60px par bouton) je ne sais comment expliquer mais (720 -600) / 2 = 60 sauf qu'avec 90 ça à l'air un peu près centré
+        
+    #création des boutons
+    for row in rows:
+        x = 340
+        for column in columns:
+            player2Buttons[row+column] = Button(image=pygame.image.load("assets/images/Game Square.png"), pos=(x,y), text_input=row+column, font=get_font(25), base_color="#d7fcd4", hovering_color="White")
+            x += 60
+            player2Grid.append(row+column)
+        y += 60
+    
+    player2Ships = []
+
+    while len(player2Ships) < 17:
+
+        player2_mouse_pos = pygame.mouse.get_pos()
+        
+        for userbutton in player2Buttons:
+            player2Buttons[userbutton].changeColor(player2_mouse_pos)   
+            player2Buttons[userbutton].update(screen)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                menuMusic.stop()
+                pygame.quit()
+                sys.exit()
+            
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for button in player2Buttons:
+                    if player2Buttons[button].checkForInput(player2_mouse_pos):
+                        if button in player2Ships:
+                            messagebox.showwarning("ERREUR", "BATEAU DEJA PLACE ICI")
+                        else:
+                            player2Ships.append(button)
+                            player2Buttons[button].changeImage(image=pygame.image.load("assets/images/rate.png"), screen=screen)
+                
+            elif event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    gameMusic.stop()
+                    pygame.quit()
+                    sys.exit()
+
+                #pour actualiser l'affichage
+            pygame.display.flip()
+            clock.tick(60) #nombre d'image par seconde
 
 def play_menu():
     while True:
@@ -374,6 +486,9 @@ def play_menu():
 
                 elif playOrdi.checkForInput(play_mouse_pos):
                     ordi()
+
+                elif playLocal.checkForInput(play_mouse_pos):
+                    multiLocal()
             
             #pour actualiser l'affichage
             pygame.display.flip()
@@ -382,7 +497,7 @@ def play_menu():
 def option_menu():
     
     menuMusic.stop()
-    positioningMusic.play()
+    # positioningMusic.play()
     
 
     master = tk.Tk()
@@ -415,7 +530,7 @@ def option_menu():
 
 def main_menu():
     
-    menuMusic.play()
+    # menuMusic.play()
     while True:
         screen.blit(bgMenu, (0,0))
 
@@ -467,3 +582,4 @@ def main_menu():
             clock.tick(60) #nombre d'image par seconde
 
 main_menu()
+#~13h de travail
