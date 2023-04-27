@@ -1,5 +1,5 @@
 """
-On peut avoir la totalité des points sans forcément répondre à toutes les exigences 
+On peut avoir la totalité des points sans forcément répondre à toutes les exigences
 précédentes, tout dépend de la qualité globable du travail.
 """
 
@@ -21,6 +21,8 @@ import random
 from time import sleep
 
 #initialisation de pygame et pour l'affichage
+pygame.mixer.pre_init(44100, 16, 2, 4096)
+pygame.mixer.init()
 pygame.init()
 clock = pygame.time.Clock()
 
@@ -37,13 +39,13 @@ bgGame = pygame.image.load("assets/images/background game.jpg")
 bgPos = pygame.image.load("assets/images/background pos.jpg")
 
 #set up des musiques du jeu
-menuMusic = pygame.mixer.Sound("assets/musiques/Menu Music.mp3")
-gameMusic = pygame.mixer.Sound("assets/musiques/Game Music.mp3")
-positioningMusic = pygame.mixer.Sound("assets/musiques/Positioning Music.mp3")
+menuMusic = pygame.mixer.Sound("assets/musiques/Menu Music.wav")
+gameMusic = pygame.mixer.Sound("assets/musiques/Game Music.wav")
+positioningMusic = pygame.mixer.Sound("assets/musiques/Positioning Music.wav")
 
 #son lors du jeu
-explosion = pygame.mixer.Sound("assets/musiques/Explosion.mp3")
-plop = pygame.mixer.Sound("assets/musiques/plop.mp3")
+explosion = pygame.mixer.Sound("assets/musiques/Explosion.wav")
+plop = pygame.mixer.Sound("assets/musiques/plop.wav")
 
 #volume du jeu
 volume = 1.0
@@ -62,7 +64,7 @@ def add_score(scores, user, score):
 
 
 def solo():
-    
+
     menuMusic.stop()
     gameMusic.play()
 
@@ -80,17 +82,17 @@ def solo():
     label2.config(font=('assets/font.ttf', 10))
     canvas1.create_window(200, 100, window=label2)
 
-    entry1 = tk.Entry(root) 
+    entry1 = tk.Entry(root)
     canvas1.create_window(200, 140, window=entry1)
-    
+
     def get_username():
         global username # je dois mettre ça comme ça car sinon ça ne fonction pas
         username = entry1.get()
         root.destroy()
-        
+
     button1 = tk.Button(text='valider', command=get_username, bg='brown', fg='white', font=('assets/font.ttf', 9, 'bold'))
     canvas1.create_window(200, 180, window=button1)
-    
+
     root.mainloop()
 
     score = 0
@@ -100,30 +102,38 @@ def solo():
 
     columns = ["0","1","2","3","4","5","6","7","8","9"] # colonnes
     rows = {"A":0, "B":1, "C":2, "D":3, "E":4, "F":5, "G":6, "H":7, "I":8, "J":9} # donne l'index de la lettre essentiel pour la suite
-        
+
     buttons = {} # dictionnaire avec tous les boutons
     grid = [] # pour la grille
 
     y = 90 #pour les lignes des boutons sachant que ma fenetre = 720 de large et les 10 boutons prennent 600 de large (60px par bouton) je ne sais comment expliquer mais (720 -600) / 2 = 60 sauf qu'avec 90 ça à l'air un peu près centré
-        
+
     #création des boutons
     for row in rows:
         x = 340
+        gridRow = []
         for column in columns:
-            buttons[row+column] = Button(image=pygame.image.load("assets/images/Game Square.png"), pos=(x,y), text_input=row+column, font=get_font(25), base_color="#d7fcd4", hovering_color="White")
+            buttons[row+column] = Button(image=pygame.image.load("assets/images/Game Square.png"), pos=(x,y), text_input=row+column, font=get_font(25), base_color=(215, 252, 212), hovering_color=(255, 255, 255))
             x += 60
-            grid.append(row+column)
+            gridRow.append({row+column : 0})
+        grid.append(gridRow)
         y += 60
 
-    print(grid)
-    
     """
         Les bâtiments ne doivent jamais se toucher
     """
 
-    ships = ["E0", "F0", "C2", "C3", "C4", "B7", "C7", "D7", "E3", "E4", "E5", "E6", "G3", "G4", "G5", "G6", "G7"] # lsite contenant la localisation des bateaux
+    ships = {2 : ["E0", "F0"], 3 : ["C2", "C3", "C4"], 6 : ["B7", "C7", "D7"], 4 : ["E3", "E4", "E5", "E6"], 5 : ["G3", "G4", "G5", "G6", "G7"]} # lsite contenant la localisation des bateaux
+
+    for ship in ships:
+        for cases in ships[ship]:
+            gridCase = [*cases]
+            grid[rows[gridCase[0]]][int(gridCase[1])][cases] = ship
     
-    numbShips = len(ships)
+    numbShips = 0
+    
+    for i in ships.values():
+        numbShips += len(i)
 
     while True:
         screen.fill((0,0,0))
@@ -131,41 +141,44 @@ def solo():
 
         #pour avoir la position de la souris
         game_mouse_pos = pygame.mouse.get_pos()
-        
+
         #pour changer la couleur du bouton quand on passe dessus
         for button in buttons:
             buttons[button].changeColor(game_mouse_pos)
             buttons[button].update(screen)
-        
+
         #pour les events bouton et quit
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 gameMusic.stop()
                 pygame.quit()
                 sys.exit()
-            
+
                 #pour check si un des 100 boutons est pressé
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 for button in buttons:
                     if buttons[button].checkForInput(game_mouse_pos):
+                        Gridcase = [*button] # sépare "A0" pour après qu'on puisse utiliser les valeur pour chercher dans la grille 
                         #pour voir si il y a un bateau sur la case ou non
-                        if button in ships: # verifie si il y a bel et bien le bateau
-                            if button in successfulShoots: #vérifie si la case à déjà été torpillée
-                                print("ATTENTION VOUS AVEZ DEJA TORPILLE ICI") # mettre un message si déjà torpilée autre que dans la console
+                        if grid[rows[Gridcase[0]]][int(Gridcase[1])][button] >= 2: # vérifie si il y a un bateau sur la case
+                            if button in ships[grid[rows[Gridcase[0]]][int(Gridcase[1])][button]]: # verifie si il y a bel et bien le bateau
+                                if button in successfulShoots: #vérifie si la case à déjà été torpillée
+                                    print("case déja devinée") # mettre un message si déjà torpilée autre que dans la console
                                 
-                            else:
-                                successfulShoots.append(button) # ajout de la case où le bateau a explosé
-                                score += 15 # ajoute 15 au score car on a deviné qu'il y avait un bateau
-                                explosion.play() # joue le son de l'explosion
-                                buttons[button].changeImage(image=pygame.image.load("assets/images/explosion.png"), screen=screen) # change l'image en explosion car il y a un bateau qui a été touché par la torpille
+                                else:
+                                    successfulShoots.append(button)
+                                    score += 15 # ajoute 15 au score car on a deviné qu'il y avait un bateau
+                                    explosion.play() # joue le son de l'explosion
+                                    buttons[button].changeImage(image=pygame.image.load("assets/images/explosion.png"), screen=screen) # change l'image en explosion car il y a un bateau qui a été touché par la torpille
                         else:
                             if button in failedShoots:
-                                print("ATTENTION VOUS AVEZ DEJA TORPILLE ICI")
+                                print("case déja devinée")
                             else:
-                                failedShoots.append(button) #ajouts de la case où le tir est raté
+                                failedShoots.append(button) #ajouts des cases où le tir est raté
                                 plop.play() # joue le son d'un objet tombant dans l'eau comme la torpille
                                 buttons[button].changeImage(image=pygame.image.load("assets/images/rate.png"), screen=screen)
                                 score -= 3 # enlève 3 de score si la case est vide
+                                #afficher tirs ratés
 
                 #pour quitter avec echap
             elif event.type == KEYDOWN:
@@ -201,7 +214,7 @@ def solo():
 def ordi():
     menuMusic.stop()
     positioningMusic.play()
-    
+
     screen.fill((0,0,0))
     screen.blit(bgPos, (0,0))
 
@@ -212,24 +225,24 @@ def ordi():
     userGrid = []
 
     y = 90 #pour les lignes des boutons sachant que ma fenetre = 720 de large et les 10 boutons prennent 600 de large (60px par bouton) je ne sais comment expliquer mais (720 -600) / 2 = 60 sauf qu'avec 90 ça à l'air un peu près centré
-        
+
     #création des boutons
     for row in rows:
         x = 340
         for column in columns:
-            userButtons[row+column] = Button(image=pygame.image.load("assets/images/Game Square.png"), pos=(x,y), text_input=row+column, font=get_font(25), base_color="#d7fcd4", hovering_color="White")
+            userButtons[row+column] = Button(image=pygame.image.load("assets/images/Game Square.png"), pos=(x,y), text_input=row+column, font=get_font(25), base_color=(215, 252, 212), hovering_color=(255, 255, 255))
             x += 60
             userGrid.append(row+column)
         y += 60
-    
+
     userShips = []
 
     while len(userShips) < 17:
 
         ordi1_mouse_pos = pygame.mouse.get_pos()
-        
+
         for userbutton in userButtons:
-            userButtons[userbutton].changeColor(ordi1_mouse_pos)   
+            userButtons[userbutton].changeColor(ordi1_mouse_pos)
             userButtons[userbutton].update(screen)
 
         for event in pygame.event.get():
@@ -237,7 +250,7 @@ def ordi():
                 menuMusic.stop()
                 pygame.quit()
                 sys.exit()
-            
+
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for button in userButtons:
                     if userButtons[button].checkForInput(ordi1_mouse_pos):
@@ -246,7 +259,7 @@ def ordi():
                         else:
                             userShips.append(button)
                             userButtons[button].changeImage(image=pygame.image.load("assets/images/rate.png"), screen=screen)
-                
+
             elif event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     gameMusic.stop()
@@ -256,7 +269,7 @@ def ordi():
                 #pour actualiser l'affichage
             pygame.display.flip()
             clock.tick(60) #nombre d'image par seconde
-    
+
     positioningMusic.stop()
     gameMusic.play()
 
@@ -267,23 +280,23 @@ def ordi():
     rows = {"A":0, "B":1, "C":2, "D":3, "E":4, "F":5, "G":6, "H":7, "I":8, "J":9}
 
     comptShips = ["E0", "F0", "C2", "C3", "C4", "B7", "C7", "D7", "E3", "E4", "E5", "E6", "G3", "G4", "G5", "G6", "G7"] # lsite contenant la localisation des bateaux
-    
+
     failedUserShoots = [] #pour mettre les tirs ratés du joueur
     successfulUserShoots = [] #tirs réussis du joueur
 
     FailedOrdiShoots = []
     successfulOrdiShoots = []
-        
+
     buttons = {} # dictionnaire avec tous les boutons
     grid = [] # pour la grille
 
     y = 90 #pour les lignes des boutons sachant que ma fenetre = 720 de large et les 10 boutons prennent 600 de large (60px par bouton) je ne sais comment expliquer mais (720 -600) / 2 = 60 sauf qu'avec 90 ça à l'air un peu près centré
-        
+
     #création des boutons
     for row in rows:
         x = 340
         for column in columns:
-            buttons[row+column] = Button(image=pygame.image.load("assets/images/Game Square.png"), pos=(x,y), text_input=row+column, font=get_font(25), base_color="#d7fcd4", hovering_color="White")
+            buttons[row+column] = Button(image=pygame.image.load("assets/images/Game Square.png"), pos=(x,y), text_input=row+column, font=get_font(25), base_color=(215, 252, 212), hovering_color=(255, 255, 255))
             x += 60
             grid.append(row+column)
         y += 60
@@ -291,19 +304,19 @@ def ordi():
     def ordiTurn():
         sleep(1.0)
         shoot = random.choice(userGrid)
-        
+
         if shoot in userShips:
             userGrid.remove(shoot)
             explosion.play()
             sleep(2.0)
-            print(f"Votre bateau en {shoot} a été touché")
+            print("Votre bateau en", shoot, "a été touché")
             ordiTurn()
         else:
             userGrid.remove(shoot)
             FailedOrdiShoots.append(shoot)
             plop.play()
-            print(f"Une torpille a été envoyée en {shoot} mais hereusement rien a été touché")
-    
+            print("Une torpille a été envoyée en", shoot, "mais hereusement rien a été touché")
+
     while True:
 
         ordi2_mouse_pos = pygame.mouse.get_pos()
@@ -317,7 +330,7 @@ def ordi():
                 gameMusic.stop()
                 pygame.quit()
                 sys.exit()
-            
+
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 for button in buttons:
                     if buttons[button].checkForInput(ordi2_mouse_pos):
@@ -364,7 +377,7 @@ def ordi():
 def multiLocal():
     menuMusic.stop()
     positioningMusic.play()
-    
+
     screen.fill((0,0,0))
     screen.blit(bgPos, (0,0))
 
@@ -381,24 +394,24 @@ def multiLocal():
     player1Grid = []
 
     y = 90 #pour les lignes des boutons sachant que ma fenetre = 720 de large et les 10 boutons prennent 600 de large (60px par bouton) je ne sais comment expliquer mais (720 -600) / 2 = 60 sauf qu'avec 90 ça à l'air un peu près centré
-        
+
     #création des boutons
     for row in rows:
         x = 340
         for column in columns:
-            player1Buttons[row+column] = Button(image=pygame.image.load("assets/images/Game Square.png"), pos=(x,y), text_input=row+column, font=get_font(25), base_color="#d7fcd4", hovering_color="White")
+            player1Buttons[row+column] = Button(image=pygame.image.load("assets/images/Game Square.png"), pos=(x,y), text_input=row+column, font=get_font(25), base_color=(215, 252, 212), hovering_color=(255, 255, 255))
             x += 60
             player1Grid.append(row+column)
         y += 60
-    
+
     player1Ships = []
 
     while len(player1Ships) < 17:
 
         player1_mouse_pos = pygame.mouse.get_pos()
-        
+
         for userbutton in player1Buttons:
-            player1Buttons[userbutton].changeColor(player1_mouse_pos)   
+            player1Buttons[userbutton].changeColor(player1_mouse_pos)
             player1Buttons[userbutton].update(screen)
 
         for event in pygame.event.get():
@@ -406,7 +419,7 @@ def multiLocal():
                 menuMusic.stop()
                 pygame.quit()
                 sys.exit()
-            
+
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for button in player1Buttons:
                     if player1Buttons[button].checkForInput(player1_mouse_pos):
@@ -415,7 +428,7 @@ def multiLocal():
                         else:
                             player1Ships.append(button)
                             player1Buttons[button].changeImage(image=pygame.image.load("assets/images/rate.png"), screen=screen)
-                
+
             elif event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     gameMusic.stop()
@@ -425,7 +438,7 @@ def multiLocal():
                 #pour actualiser l'affichage
             pygame.display.flip()
             clock.tick(60) #nombre d'image par seconde
-    
+
     screen.fill((0,0,0))
     screen.blit(bgPos, (0,0))
 
@@ -433,24 +446,24 @@ def multiLocal():
     player2Grid = []
 
     y = 90 #pour les lignes des boutons sachant que ma fenetre = 720 de large et les 10 boutons prennent 600 de large (60px par bouton) je ne sais comment expliquer mais (720 -600) / 2 = 60 sauf qu'avec 90 ça à l'air un peu près centré
-        
+
     #création des boutons
     for row in rows:
         x = 340
         for column in columns:
-            player2Buttons[row+column] = Button(image=pygame.image.load("assets/images/Game Square.png"), pos=(x,y), text_input=row+column, font=get_font(25), base_color="#d7fcd4", hovering_color="White")
+            player2Buttons[row+column] = Button(image=pygame.image.load("assets/images/Game Square.png"), pos=(x,y), text_input=row+column, font=get_font(25), base_color=(215, 252, 212), hovering_color=(255, 255, 255))
             x += 60
             player2Grid.append(row+column)
         y += 60
-    
+
     player2Ships = []
 
     while len(player2Ships) < 17:
 
         player2_mouse_pos = pygame.mouse.get_pos()
-        
+
         for userbutton in player2Buttons:
-            player2Buttons[userbutton].changeColor(player2_mouse_pos)   
+            player2Buttons[userbutton].changeColor(player2_mouse_pos)
             player2Buttons[userbutton].update(screen)
 
         for event in pygame.event.get():
@@ -458,7 +471,7 @@ def multiLocal():
                 menuMusic.stop()
                 pygame.quit()
                 sys.exit()
-            
+
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for button in player2Buttons:
                     if player2Buttons[button].checkForInput(player2_mouse_pos):
@@ -467,7 +480,7 @@ def multiLocal():
                         else:
                             player2Ships.append(button)
                             player2Buttons[button].changeImage(image=pygame.image.load("assets/images/rate.png"), screen=screen)
-                
+
             elif event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     gameMusic.stop()
@@ -477,34 +490,19 @@ def multiLocal():
             #pour actualiser l'affichage
             pygame.display.flip()
             clock.tick(60) #nombre d'image par seconde
+
     
-    screen.fill((0,0,0))
-    screen.blit(bgGame, (0,0))
 
-    positioningMusic.stop()
-    gameMusic.play()
-
-    player1Buttons = {}
-    player2Buttons = {}
-
-    y = 90
-
-    for row in rows:
-        x = 340
-        for column in columns:
-            player1Buttons[row+column] = Button(image=pygame.image.load("assets/images/Game Square.png"), pos=(x,y), text_input=row+column, font=get_font(25), base_color="#d7fcd4", hovering_color="White")
-            x += 60
-        y += 60
-
-    def player2turn():
+    def player1turn():
         screen.fill((0,0,0))
         screen.blit(bgGame, (0,0))
+        turn1 = Button(image=pygame.image.load("assets/images/Option rect.png"), pos=(100,50), text_input="PLAYER 1 TURN", font=get_font(25), base_color=(215, 252, 212), hovering_color=(255, 255, 255))
 
         y = 90
         for row in rows:
             x = 340
             for column in columns:
-                player2Buttons[row+column] = Button(image=pygame.image.load("assets/images/Game Square.png"), pos=(x,y), text_input=row+column, font=get_font(25), base_color="#d7fcd4", hovering_color="White")
+                player2Buttons[row+column] = Button(image=pygame.image.load("assets/images/Game Square.png"), pos=(x,y), text_input=row+column, font=get_font(25), base_color=(215, 252, 212), hovering_color=(255, 255, 255))
                 x += 60
             y += 60
 
@@ -514,7 +512,7 @@ def multiLocal():
             player2_mouse_pos = pygame.mouse.get_pos()
 
             for userbutton in player2Buttons:
-                player2Buttons[userbutton].changeColor(player2_mouse_pos)   
+                player2Buttons[userbutton].changeColor(player2_mouse_pos)
                 player2Buttons[userbutton].update(screen)
 
             for event in pygame.event.get():
@@ -528,7 +526,7 @@ def multiLocal():
                             if button in player2Ships:
                                 if button in successfulPlayer2Shoots:
                                     print("Tu as déjà torpillé ici")
-                                        
+
                                 else:
                                     successfulPlayer2Shoots.append(button)
                                     explosion.play()
@@ -542,7 +540,7 @@ def multiLocal():
                                     failedPlayer2Shoots.append(button)
                                     plop.play()
                                     playing = False
-                
+
                 elif event.type == KEYDOWN:
                     if event.key == K_ESCAPE:
                         gameMusic.stop()
@@ -555,9 +553,9 @@ def multiLocal():
 
     while True:
         player1_mouse_pos = pygame.mouse.get_pos()
-        
+
         for userbutton in player1Buttons:
-            player1Buttons[userbutton].changeColor(player1_mouse_pos)   
+            player1Buttons[userbutton].changeColor(player1_mouse_pos)
             player1Buttons[userbutton].update(screen)
 
         for event in pygame.event.get():
@@ -565,14 +563,14 @@ def multiLocal():
                 gameMusic.stop()
                 pygame.quit()
                 sys.exit()
-            
+
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 for button in player1Buttons:
                     if player1Buttons[button].checkForInput(player1_mouse_pos):
                         if button in player1Ships:
                             if button in successfulPlayer1Shoots:
                                 print("Tu as déjà torpillé ici")
-                                    
+
                             else:
                                 successfulPlayer1Shoots.append(button)
                                 explosion.play()
@@ -584,14 +582,14 @@ def multiLocal():
                                 failedPlayer1Shoots.append(button)
                                 player1Buttons[button].changeImage(image=pygame.image.load("assets/images/rate.png"), screen=screen)
                                 plop.play()
-                                player2turn()
-            
+                                player1turn()
+
             elif event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     gameMusic.stop()
                     pygame.quit()
                     sys.exit()
-        
+
             #pour actualiser l'affichage
             pygame.display.flip()
             clock.tick(60) #nombre d'image par seconde
@@ -604,19 +602,19 @@ def play_menu():
         #pour avoir la position de la souris
         play_mouse_pos = pygame.mouse.get_pos()
 
-        playSolo = Button(image=pygame.image.load("assets/images/Solo Rect.png"), pos=(640,150), text_input="SOLO", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        playSolo = Button(image=pygame.image.load("assets/images/Solo Rect.png"), pos=(640,150), text_input="SOLO", font=get_font(75), base_color=(215, 252, 212), hovering_color=(255, 255, 255))
 
-        playOrdi = Button(image=pygame.image.load("assets/images/Solo Rect.png"), pos=(640,275), text_input="VS ORDI", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        playOrdi = Button(image=pygame.image.load("assets/images/Solo Rect.png"), pos=(640,275), text_input="VS ORDI", font=get_font(75), base_color=(215, 252, 212), hovering_color=(255, 255, 255))
 
-        playLocal = Button(image=pygame.image.load("assets/images/Solo Rect.png"), pos=(640,400), text_input="VS LOCAL", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        playLocal = Button(image=pygame.image.load("assets/images/Solo Rect.png"), pos=(640,400), text_input="VS LOCAL", font=get_font(75), base_color=(215, 252, 212), hovering_color=(255, 255, 255))
 
-        playBack = Button(image=pygame.image.load("assets/images/Solo Rect.png"), pos=(640,525), text_input="BACK", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        playBack = Button(image=pygame.image.load("assets/images/Solo Rect.png"), pos=(640,525), text_input="BACK", font=get_font(75), base_color=(215, 252, 212), hovering_color=(255, 255, 255))
 
         #pour changer la couleur du bouton quand on passe dessus
         for button in [playSolo, playOrdi, playLocal, playBack]:
             button.changeColor(play_mouse_pos)
             button.update(screen)
-        # 
+        #
         #pour les events bouton et quit
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -625,7 +623,7 @@ def play_menu():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if playBack.checkForInput(play_mouse_pos):
                     main_menu()
-                
+
                 elif playSolo.checkForInput(play_mouse_pos):
                     solo()
 
@@ -634,20 +632,20 @@ def play_menu():
 
                 elif playLocal.checkForInput(play_mouse_pos):
                     multiLocal()
-            
+
             #pour actualiser l'affichage
             pygame.display.flip()
             clock.tick(60) #nombre d'image par seconde
 
 def option_menu():
-    
+
     menuMusic.stop()
     positioningMusic.play()
-    
+
     sleep(2.0)
 
     master = tk.Tk()
-    
+
     canvas10 = tk.Canvas(master, width=400, height=300, relief='raised')
     canvas10.pack()
 
@@ -658,7 +656,7 @@ def option_menu():
     w = tk.Scale(master, from_=0, to=100, tickinterval=50, orient="horizontal")
     canvas10.create_window(300, 150, window=w)
     w.set(50)
-    
+
     def volume_value():
         global volume
         volume = float(w.get() /100)
@@ -676,17 +674,18 @@ def option_menu():
 
 def main_menu():
     menuMusic.play()
+    screen.fill((0,0,0))
     while True:
         screen.blit(bgMenu, (0,0))
 
         #pour avoir la position de la souris
         menu_mouse_pos = pygame.mouse.get_pos()
 
-        playButton = Button(image=pygame.image.load("assets/images/Play Rect.png"), pos=(640,250), text_input="JOUER", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        playButton = Button(image=pygame.image.load("assets/images/Play Rect.png"), pos=(640,250), text_input="JOUER", font=get_font(75), base_color=(215, 252, 212), hovering_color=(255, 255, 255))
 
-        optButton = Button(image=pygame.image.load("assets/images/Option Rect.png"), pos=(640, 400), text_input="OPTIONS", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
-        
-        quitButton = Button(image=pygame.image.load("assets/images/Quit Rect.png"), pos=(640, 550), text_input="QUIT", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        optButton = Button(image=pygame.image.load("assets/images/Option Rect.png"), pos=(640, 400), text_input="OPTIONS", font=get_font(75), base_color=(215, 252, 212), hovering_color=(255, 255, 255))
+
+        quitButton = Button(image=pygame.image.load("assets/images/Quit Rect.png"), pos=(640, 550), text_input="QUIT", font=get_font(75), base_color=(215, 252, 212), hovering_color=(255, 255, 255))
 
         #pour changer la couleur du bouton quand on passe dessus
         for button in [playButton, quitButton, optButton]:
@@ -706,15 +705,15 @@ def main_menu():
                     menuMusic.stop()
                     pygame.quit()
                     sys.exit()
-                
+
                 #pour aller sur le "menu" de sélection du mode de jeu
                 if playButton.checkForInput(menu_mouse_pos):
                     play_menu()
-                
+
                 #pour aller dans les paramètres du jeu
                 if optButton.checkForInput(menu_mouse_pos):
                     option_menu()
-                
+
             #pour quitter avec echap
             elif event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
