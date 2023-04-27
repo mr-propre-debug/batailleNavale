@@ -120,12 +120,18 @@ def solo():
         y += 60
 
     """
+        pour générer une grille randint et positionner la 1ère et vérifier si pas en bout de grille
+
         Les bâtiments ne doivent jamais se toucher
     """
 
-    ships = {2 : ["E0", "F0"], 3 : ["C2", "C3", "C4"], 6 : ["B7", "C7", "D7"], 4 : ["E3", "E4", "E5", "E6"], 5 : ["G3", "G4", "G5", "G6", "G7"]} # lsite contenant la localisation des bateaux
+    ships = {2 : [], 3 : [], 6 : [], 4 : [], 5 : []} # liste contenant la localisation des bateaux
+    shipSize = {"2": 2, "3" : 3, "6" : 3,  "4" : 4, "5" : 5}
     sunkShips = {2 : [], 3 : [], 6 : [], 4 : [], 5 : []}
-
+    
+    for bat in ships:
+        for shipPlace in range(shipSize[str(bat)]):
+            pass
 
     for ship in ships:
         for cases in ships[ship]:
