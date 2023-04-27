@@ -124,6 +124,8 @@ def solo():
     """
 
     ships = {2 : ["E0", "F0"], 3 : ["C2", "C3", "C4"], 6 : ["B7", "C7", "D7"], 4 : ["E3", "E4", "E5", "E6"], 5 : ["G3", "G4", "G5", "G6", "G7"]} # lsite contenant la localisation des bateaux
+    sunkShips = {2 : [], 3 : [], 6 : [], 4 : [], 5 : []}
+
 
     for ship in ships:
         for cases in ships[ship]:
@@ -167,9 +169,18 @@ def solo():
                                 
                                 else:
                                     successfulShoots.append(button)
+                                    ships[grid[rows[Gridcase[0]]][int(Gridcase[1])][button]].remove(button)
+                                    sunkShips[grid[rows[Gridcase[0]]][int(Gridcase[1])][button]].append(button)
+
                                     score += 15 # ajoute 15 au score car on a deviné qu'il y avait un bateau
                                     explosion.play() # joue le son de l'explosion
                                     buttons[button].changeImage(image=pygame.image.load("assets/images/explosion.png"), screen=screen) # change l'image en explosion car il y a un bateau qui a été touché par la torpille
+                                    if ships[grid[rows[Gridcase[0]]][int(Gridcase[1])][button]] == []:
+                                        ships[grid[rows[Gridcase[0]]][int(Gridcase[1])][button]] = "coulé"
+                                        print(ships[grid[rows[Gridcase[0]]][int(Gridcase[1])][button]])
+                                        for but in sunkShips[grid[rows[Gridcase[0]]][int(Gridcase[1])][button]]:
+                                            buttons[but].changeImage(image=pygame.image.load("assets/images/wood.png"), screen=screen)
+                                        
                         else:
                             if button in failedShoots:
                                 print("case déja devinée")
