@@ -130,8 +130,12 @@ def solo():
     sunkShips = {2 : [], 3 : [], 6 : [], 4 : [], 5 : []}
     
     for bat in ships:
+        shipRow = random.sample(grid, 1)
+        shipCase = random.sample(shipRow[0], 1)
         for shipPlace in range(shipSize[str(bat)]):
             pass
+        print(shipCase, bat)
+        # ships[bat].append("A1")
 
     for ship in ships:
         for cases in ships[ship]:
