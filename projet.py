@@ -21,8 +21,6 @@ import random
 from time import sleep
 
 #initialisation de pygame et pour l'affichage
-pygame.mixer.pre_init(44100, 16, 2, 4096)
-pygame.mixer.init()
 pygame.init()
 clock = pygame.time.Clock()
 
@@ -64,10 +62,6 @@ def add_score(scores, user, score):
 
 
 def solo():
-
-    menuMusic.stop()
-    gameMusic.play()
-
     #pour avoir le nom d'utilisateur du joueur pour faire les scores
     root= tk.Tk()
 
@@ -94,7 +88,10 @@ def solo():
     canvas1.create_window(200, 180, window=button1)
 
     root.mainloop()
-
+    
+    menuMusic.stop()
+    gameMusic.play()
+    
     score = 0
 
     failedShoots = [] #pour mettre les tirs ratés
@@ -128,24 +125,29 @@ def solo():
     ships = {2 : [], 3 : [], 6 : [], 4 : [], 5 : []} # liste contenant la localisation des bateaux
     shipSize = {"2": 2, "3" : 3, "6" : 3,  "4" : 4, "5" : 5}
     sunkShips = {2 : [], 3 : [], 6 : [], 4 : [], 5 : []}
-    
-    for bat in ships:
-        shipRow = random.sample(grid, 1)
-        shipCase = random.sample(shipRow[0], 1)
-        for shipPlace in range(shipSize[str(bat)]):
-            pass
-        print(shipCase, bat)
-        # ships[bat].append("A1")
+
+    for bat in ships: #pour chaque bateau
+        shipRow = random.sample(grid, 1) # séléctionne une ligne au hasard
+        shipCase = random.sample(shipRow[0], 1) #selectionne une case au hasard
+        for shipPlace in range(shipSize[str(bat)]-1): # pour placer le bateau
+            boatCase = list(shipCase[0])
+            boatPlace = [*boatCase[0]]
+            columnBoat = boatPlace[1]
+            columnBoat = int(columnBoat)
+            print(9 - shipSize[str(bat)], boatCase)
+            if shipSize[str(bat)] < 10 - shipSize[str(bat)]:
+                print("coucou")
+
 
     for ship in ships:
         for cases in ships[ship]:
             gridCase = [*cases]
             grid[rows[gridCase[0]]][int(gridCase[1])][cases] = ship
     
-    numbShips = 0
+    # numbShips = 0
     
-    for i in ships.values():
-        numbShips += len(i)
+    # for i in ships.values():
+    #     numbShips += len(i)
 
     while True:
         screen.fill((0,0,0))
@@ -747,4 +749,4 @@ def main_menu():
             clock.tick(60) #nombre d'image par seconde
 
 main_menu()
-#~16h de travail
+#~20h de travail
