@@ -1,8 +1,3 @@
-"""
-On peut avoir la totalité des points sans forcément répondre à toutes les exigences
-précédentes, tout dépend de la qualité globable du travail.
-"""
-
 #import des modules nécessaires pour faire fonctionner le jeu
 import pygame, sys
 from pygame.locals import *
@@ -10,7 +5,7 @@ from pygame.locals import *
 from button import Button #module qui est dans le zip que j'ai trouvé pour faire des boutons sur pygame
 
 import tkinter as tk #servira (pour l'instant) à demander le(s) pseudo(s)
-from tkinter import messagebox
+from tkinter import messagebox # sert à afficher des boite d'alerte mais ceci rends très instable le jeu
 
 import json
 
@@ -37,13 +32,13 @@ bgGame = pygame.image.load("assets/images/background game.jpg")
 bgPos = pygame.image.load("assets/images/background pos.jpg")
 
 #set up des musiques du jeu
-menuMusic = pygame.mixer.Sound("assets/musiques/Menu Music.wav")
-gameMusic = pygame.mixer.Sound("assets/musiques/Game Music.wav")
-positioningMusic = pygame.mixer.Sound("assets/musiques/Positioning Music.wav")
+menuMusic = pygame.mixer.Sound("assets/musiques/Menu Music.mp3")
+gameMusic = pygame.mixer.Sound("assets/musiques/Game Music.mp3")
+positioningMusic = pygame.mixer.Sound("assets/musiques/Positioning Music.mp3")
 
 #son lors du jeu
-explosion = pygame.mixer.Sound("assets/musiques/Explosion.wav")
-plop = pygame.mixer.Sound("assets/musiques/plop.wav")
+explosion = pygame.mixer.Sound("assets/musiques/Explosion.mp3")
+plop = pygame.mixer.Sound("assets/musiques/plop.mp3")
 
 #volume du jeu
 volume = 1.0
@@ -91,7 +86,9 @@ def solo():
     
     menuMusic.stop()
     gameMusic.play()
-    
+
+    pygame.display.set_caption("solo mode")
+
     score = 0
 
     failedShoots = [] #pour mettre les tirs ratés
@@ -102,6 +99,7 @@ def solo():
 
     buttons = {} # dictionnaire avec tous les boutons
     grid = [] # pour la grille
+    gridForPosBoat = []
 
     y = 90 #pour les lignes des boutons sachant que ma fenetre = 720 de large et les 10 boutons prennent 600 de large (60px par bouton) je ne sais comment expliquer mais (720 -600) / 2 = 60 sauf qu'avec 90 ça à l'air un peu près centré
 
@@ -109,10 +107,13 @@ def solo():
     for row in rows:
         x = 340
         gridRow = []
+        gridRowSpé = []
         for column in columns:
             buttons[row+column] = Button(image=pygame.image.load("assets/images/Game Square.png"), pos=(x,y), text_input=row+column, font=get_font(25), base_color=(215, 252, 212), hovering_color=(255, 255, 255))
             x += 60
             gridRow.append({row+column : 0})
+            gridRowSpé.append({row+column : 999})
+        gridForPosBoat.append(gridRowSpé)
         grid.append(gridRow)
         y += 60
 
@@ -123,31 +124,83 @@ def solo():
     """
 
     ships = {2 : [], 3 : [], 6 : [], 4 : [], 5 : []} # liste contenant la localisation des bateaux
-    shipSize = {"2": 2, "3" : 3, "6" : 3,  "4" : 4, "5" : 5}
-    sunkShips = {2 : [], 3 : [], 6 : [], 4 : [], 5 : []}
+    shipSize = {"2": 2, "3" : 3, "6" : 3,  "4" : 4, "5" : 5} #pour la taille des bateau vu qu'il y a 2 fois un bateau de 3 cases
+    sunkShips = {2 : [], 3 : [], 6 : [], 4 : [], 5 : []} #pour les bateaux coulés
 
-    for bat in ships: #pour chaque bateau
-        shipRow = random.sample(grid, 1) # séléctionne une ligne au hasard
-        shipCase = random.sample(shipRow[0], 1) #selectionne une case au hasard
-        for shipPlace in range(shipSize[str(bat)]-1): # pour placer le bateau
-            boatCase = list(shipCase[0])
-            boatPlace = [*boatCase[0]]
-            columnBoat = boatPlace[1]
-            columnBoat = int(columnBoat)
-            print(9 - shipSize[str(bat)], boatCase)
-            if shipSize[str(bat)] < 10 - shipSize[str(bat)]:
-                print("coucou")
+    # for bat in ships: #pour chaque bateau
+    #     shipRow = random.sample(gridForPosBoat, 1) # séléctionne une ligne au hasard
+    #     shipCase = random.sample(shipRow[0], 1) #selectionne une case au hasard
+    #     boatCase1st = list(shipCase[0]) # pour prendre que la key du dict de la case
+    #     boatPlace1st = [*boatCase1st[0]] # sépare la case en liste
+    #     remainingSpace = 0 #sert à voir si l'espace est suffisant
+    #     remainingSpace += int(boatPlace1st[1])
+    #     remainingSpace += shipSize[str(bat)]
 
+    #     if remainingSpace < 9:
+    #         gridForPosBoat[rows[boatPlace1st[0]]].remove({str(boatCase1st[0]) : 999}) #enlève la case de la grille pour la position des bateaux
+    #         ships[bat].append(str(boatCase1st[0]))
+    #         for i in range(shipSize[str(bat)]-1): # pour placer le bateau
+    #             boatCase = list(shipCase[0]) # pour prendre que la key du dict de la case
+    #             boatPlace = [*boatCase[0]] # sépare la case en liste
+    #             columnBoat = boatPlace[1] # prendre le chiffre de la case
+    #             columnBoat = int(columnBoat)
+    #             columnBoat += i # pour mettre le bateau
+    #             columnBoat += 1
+    #             boatPos = boatPlace[0] + str(columnBoat) # pour ajouter les cases où est le bateau
+    #             print( gridForPosBoat[rows[boatPlace[0]]])
+    #             print(boatPos)
+    #             ships[bat].append(boatPos)
+    #             gridForPosBoat[rows[boatPlace[0]]].remove({boatPos : 999})
+        
+    #     else:
+    #         shipRow = random.sample(gridForPosBoat, 1) # séléctionne une ligne au hasard
+    #         shipCase = random.sample(shipRow[0], 1)
+    #         boatCase2nd = list(shipCase[0]) # pour prendre que la key du dict de la case
+    #         boatPlace2nd = [*boatCase2nd[0]] # sépare la case en liste
+    #         remainingSpace = 0 #sert à voir si l'espace est suffisant
+    #         remainingSpace += int(boatPlace2nd[1])
+    #         remainingSpace += shipSize[str(bat)]
+            
+    #         while remainingSpace > 9:
+    #             shipRow = random.sample(gridForPosBoat, 1) # séléctionne une ligne au hasard
+    #             shipCase = random.sample(shipRow[0], 1)
+    #             boatCase2nd = list(shipCase[0]) # pour prendre que la key du dict de la case
+    #             boatPlace2nd = [*boatCase2nd[0]] # sépare la case en liste
+    #             remainingSpace = 0 #sert à voir si l'espace est suffisant
+    #             remainingSpace += int(boatPlace2nd[1])
+    #             remainingSpace += shipSize[str(bat)]
+            
+    #         gridForPosBoat[rows[boatPlace2nd[0]]].remove({str(boatCase2nd[0]) : 999}) #enlève la case de la grille pour la position des bateaux
+    #         ships[bat].append(str(boatCase2nd[0]))
+
+    #         for j in range(shipSize[str(bat)]-1): # pour placer le bateau
+    #             boatCase = list(shipCase[0]) # pour prendre que la key du dict de la case
+    #             boatPlace = [*boatCase[0]] # sépare la case en liste
+    #             columnBoat = boatPlace[1] # prendre le chiffre de la case
+    #             columnBoat = int(columnBoat)
+    #             columnBoat += j # pour mettre le bateau
+    #             boatPos = boatPlace[0] + str(columnBoat) # pour ajouter les cases où est le bateau
+    #             print(boatPos)
+    #             ships[bat].append(boatPos)
+    #             gridForPosBoat[rows[boatPlace[0]]].remove({boatPos : 999})
+            
+    # print(ships)
+
+    ships = {2 : ["E0", "F0"], 3 : ["C2", "C3", "C4"], 6 : ["B7", "C7", "D7"], 4 : ["E3", "E4", "E5", "E6"], 5 : ["G3", "G4", "G5", "G6", "G7"]} # lsite contenant la localisation des bateaux
 
     for ship in ships:
+        print(ship, "ship")
         for cases in ships[ship]:
             gridCase = [*cases]
-            grid[rows[gridCase[0]]][int(gridCase[1])][cases] = ship
+            print(gridCase[1], "gridCase[1]")
+            grid[rows[gridCase[0]]][int(gridCase[1])][cases] = shipSize[str(ship)]
     
-    # numbShips = 0
+    numbShips = 0
     
-    # for i in ships.values():
-    #     numbShips += len(i)
+    for i in ships.values():
+        numbShips += len(i)
+
+    print(grid)
 
     while True:
         screen.fill((0,0,0))
@@ -191,8 +244,7 @@ def solo():
                                         ships[grid[rows[Gridcase[0]]][int(Gridcase[1])][button]] = "coulé"
                                         print(ships[grid[rows[Gridcase[0]]][int(Gridcase[1])][button]])
                                         for but in sunkShips[grid[rows[Gridcase[0]]][int(Gridcase[1])][button]]:
-                                            buttons[but].changeImage(image=pygame.image.load("assets/images/wood.png"), screen=screen)
-                                        
+                                            buttons[but].changeImage(image=pygame.image.load("assets/images/wood.png"), screen=screen)                
                         else:
                             if button in failedShoots:
                                 print("case déja devinée")
@@ -237,6 +289,8 @@ def solo():
 def ordi():
     menuMusic.stop()
     positioningMusic.play()
+
+    pygame.display.set_caption("placement des bateaux")
 
     screen.fill((0,0,0))
     screen.blit(bgPos, (0,0))
@@ -401,6 +455,8 @@ def multiLocal():
     menuMusic.stop()
     positioningMusic.play()
 
+    pygame.display.set_caption("placement des bateaux")
+
     screen.fill((0,0,0))
     screen.blit(bgPos, (0,0))
 
@@ -514,7 +570,7 @@ def multiLocal():
             pygame.display.flip()
             clock.tick(60) #nombre d'image par seconde
 
-    
+    pygame.display.set_caption("2 players mode")
 
     def player1turn():
         screen.fill((0,0,0))
