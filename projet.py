@@ -127,80 +127,148 @@ def solo():
     shipSize = {"2": 2, "3" : 3, "6" : 3,  "4" : 4, "5" : 5} #pour la taille des bateau vu qu'il y a 2 fois un bateau de 3 cases
     sunkShips = {2 : [], 3 : [], 6 : [], 4 : [], 5 : []} #pour les bateaux coulés
 
-    # for bat in ships: #pour chaque bateau
-    #     shipRow = random.sample(gridForPosBoat, 1) # séléctionne une ligne au hasard
-    #     shipCase = random.sample(shipRow[0], 1) #selectionne une case au hasard
-    #     boatCase1st = list(shipCase[0]) # pour prendre que la key du dict de la case
-    #     boatPlace1st = [*boatCase1st[0]] # sépare la case en liste
-    #     remainingSpace = 0 #sert à voir si l'espace est suffisant
-    #     remainingSpace += int(boatPlace1st[1])
-    #     remainingSpace += shipSize[str(bat)]
+    for bat in ships: #pour chaque bateau
+        shipRow = random.sample(gridForPosBoat, 1) # séléctionne une ligne au hasard
+        shipCase = random.sample(shipRow[0], 1) #selectionne une case au hasard
+        boatCase1st = list(shipCase[0]) # pour prendre que la key du dict de la case
+        boatPlace1st = [*boatCase1st[0]] # sépare la case en liste
 
-    #     if remainingSpace < 9:
-    #         gridForPosBoat[rows[boatPlace1st[0]]].remove({str(boatCase1st[0]) : 999}) #enlève la case de la grille pour la position des bateaux
-    #         ships[bat].append(str(boatCase1st[0]))
-    #         for i in range(shipSize[str(bat)]-1): # pour placer le bateau
-    #             boatCase = list(shipCase[0]) # pour prendre que la key du dict de la case
-    #             boatPlace = [*boatCase[0]] # sépare la case en liste
-    #             columnBoat = boatPlace[1] # prendre le chiffre de la case
-    #             columnBoat = int(columnBoat)
-    #             columnBoat += i # pour mettre le bateau
-    #             columnBoat += 1
-    #             boatPos = boatPlace[0] + str(columnBoat) # pour ajouter les cases où est le bateau
-    #             print( gridForPosBoat[rows[boatPlace[0]]])
-    #             print(boatPos)
-    #             ships[bat].append(boatPos)
-    #             gridForPosBoat[rows[boatPlace[0]]].remove({boatPos : 999})
+        remainingSpace = 0 #sert à voir si l'espace est suffisant
+        remainingSpace += int(boatPlace1st[1]) #colonne du bateau
+        remainingSpace += shipSize[str(bat)] # taille du bateau
+        remainingSpace = int(remainingSpace)
+        print(remainingSpace)
         
-    #     else:
-    #         shipRow = random.sample(gridForPosBoat, 1) # séléctionne une ligne au hasard
-    #         shipCase = random.sample(shipRow[0], 1)
-    #         boatCase2nd = list(shipCase[0]) # pour prendre que la key du dict de la case
-    #         boatPlace2nd = [*boatCase2nd[0]] # sépare la case en liste
-    #         remainingSpace = 0 #sert à voir si l'espace est suffisant
-    #         remainingSpace += int(boatPlace2nd[1])
-    #         remainingSpace += shipSize[str(bat)]
-            
-    #         while remainingSpace > 9:
-    #             shipRow = random.sample(gridForPosBoat, 1) # séléctionne une ligne au hasard
-    #             shipCase = random.sample(shipRow[0], 1)
-    #             boatCase2nd = list(shipCase[0]) # pour prendre que la key du dict de la case
-    #             boatPlace2nd = [*boatCase2nd[0]] # sépare la case en liste
-    #             remainingSpace = 0 #sert à voir si l'espace est suffisant
-    #             remainingSpace += int(boatPlace2nd[1])
-    #             remainingSpace += shipSize[str(bat)]
-            
-    #         gridForPosBoat[rows[boatPlace2nd[0]]].remove({str(boatCase2nd[0]) : 999}) #enlève la case de la grille pour la position des bateaux
-    #         ships[bat].append(str(boatCase2nd[0]))
+        if int(remainingSpace) < int(8):
+            is_not_boat_in_ships = True
 
-    #         for j in range(shipSize[str(bat)]-1): # pour placer le bateau
-    #             boatCase = list(shipCase[0]) # pour prendre que la key du dict de la case
-    #             boatPlace = [*boatCase[0]] # sépare la case en liste
-    #             columnBoat = boatPlace[1] # prendre le chiffre de la case
-    #             columnBoat = int(columnBoat)
-    #             columnBoat += j # pour mettre le bateau
-    #             boatPos = boatPlace[0] + str(columnBoat) # pour ajouter les cases où est le bateau
-    #             print(boatPos)
-    #             ships[bat].append(boatPos)
-    #             gridForPosBoat[rows[boatPlace[0]]].remove({boatPos : 999})
+            for b in ships:
+                if boatCase1st in ships[b]:
+                    is_not_boat_in_ships = False
             
-    # print(ships)
+            if is_not_boat_in_ships == True:
+                caseAvant = int(boatPlace1st[1])
+                if caseAvant == 0:
+                    gridForPosBoat[rows[boatPlace1st[0]]].remove({str(boatCase1st[0]) : 999}) #enlève la case de la grille pour la position des bateaux
+                    ships[bat].append(str(boatCase1st[0]))
+                    for i in range(shipSize[str(bat)]-1): # pour placer le bateau
+                        boatCase = list(shipCase[0]) # pour prendre que la key du dict de la case
+                        boatPlace = [*boatCase[0]] # sépare la case en liste
+                        columnBoat = boatPlace[1] # prendre le chiffre de la case
+                        columnBoat = int(columnBoat)
+                        columnBoat += i # pour mettre le bateau
+                        columnBoat += 1
+                        boatPos = boatPlace[0] + str(columnBoat) # pour ajouter les cases où est le bateau
+                        print(gridForPosBoat[rows[boatPlace[0]]])
+                        print(boatPos)
+                        ships[bat].append(boatPos)
+                        gridForPosBoat[rows[boatPlace[0]]].remove({boatPos : 999})
+                else:
+                    caseAvant -= 1
+                    removedCase = boatPlace1st[0] + str(caseAvant)
+                    gridForPosBoat[rows[boatPlace1st[0]]].remove({str(removedCase) : 999}) #enlève la case de la grille pour la position des bateaux
+                    ships[bat].append(str(boatCase1st[0]))
+                    for i in range(shipSize[str(bat)] - 1):
+                        boatCase = list(shipCase[0]) # pour prendre que la key du dict de la case
+                        boatPlace = [*boatCase[0]] # sépare la case en liste
+                        columnBoat = boatPlace[1] # prendre le chiffre de la case
+                        columnBoat = int(columnBoat)
+                        columnBoat += i # pour mettre le bateau
+                        if columnBoat == 9:
+                            break
+                        columnBoat += 1
+                        boatPos = boatPlace[0] + str(columnBoat) # pour ajouter les cases où est le bateau
+                        print(gridForPosBoat[rows[boatPlace[0]]])
+                        print(boatPos)
+                        ships[bat].append(boatPos)
+                        gridForPosBoat[rows[boatPlace[0]]].remove({boatPos : 999})
+        
+        else:
+            shipRow = random.sample(gridForPosBoat, 1) # séléctionne une ligne au hasard
+            shipCase = random.sample(shipRow[0], 1)
+            boatCase2nd = list(shipCase[0]) # pour prendre que la key du dict de la case
+            boatPlace2nd = [*boatCase2nd[0]] # sépare la case en liste
+            remainingSpace = 0 #sert à voir si l'espace est suffisant
+            remainingSpace += int(boatPlace2nd[1])
+            remainingSpace += shipSize[str(bat)]
+            remainingSpace = int(remainingSpace)
+            
+            is_not_boat_in_ships2 = True
 
-    ships = {2 : ["E0", "F0"], 3 : ["C2", "C3", "C4"], 6 : ["B7", "C7", "D7"], 4 : ["E3", "E4", "E5", "E6"], 5 : ["G3", "G4", "G5", "G6", "G7"]} # lsite contenant la localisation des bateaux
+            for b in ships:
+                if boatCase1st in ships[b]:
+                    is_not_boat_in_ships2 = False
+
+            while remainingSpace > 8 and is_not_boat_in_ships2 == False:
+                shipRow = random.sample(gridForPosBoat, 1) # séléctionne une ligne au hasard
+                shipCase = random.sample(shipRow[0], 1)
+                boatCase2nd = list(shipCase[0]) # pour prendre que la key du dict de la case
+                boatPlace2nd = [*boatCase2nd[0]] # sépare la case en liste
+                remainingSpace = 0 #sert à voir si l'espace est suffisant
+                remainingSpace += int(boatPlace2nd[1])
+                remainingSpace += shipSize[str(bat)]
+                remainingSpace = int(remainingSpace)
+            
+            
+            print(boatCase2nd[0], "else 207")
+            caseAvant = int(boatPlace2nd[1])
+            if caseAvant == 0:
+                gridForPosBoat[rows[boatPlace2nd[0]]].remove({str(boatCase2nd[0]) : 999}) #enlève la case de la grille pour la position des bateaux
+                ships[bat].append(str(boatCase2nd[0]))
+                
+                for j in range(shipSize[str(bat)]-1): # pour placer le bateau
+                    boatCase = list(shipCase[0]) # pour prendre que la key du dict de la case
+                    boatPlace = [*boatCase[0]] # sépare la case en liste
+                    columnBoat = boatPlace[1] # prendre le chiffre de la case
+                    columnBoat = int(columnBoat)
+                    columnBoat += j # pour mettre le bateau
+                    if columnBoat == 9:
+                        break
+                    columnBoat += 1
+                    boatPos = boatPlace[0] + str(columnBoat) # pour ajouter les cases où est le bateau
+                    print(boatPos, "else 223")
+                    print(gridForPosBoat[rows[boatPlace[0]]], "else 224")
+                    ships[bat].append(boatPos)
+                    gridForPosBoat[rows[boatPlace[0]]].remove({boatPos : 999})
+            else:
+                caseAvant -= 1
+                removedCase = boatPlace2nd[0] + str(caseAvant)
+                print(removedCase, "else 230")
+                print(gridForPosBoat[rows[boatPlace2nd[0]]], "else 231")
+                gridForPosBoat[rows[boatPlace2nd[0]]].remove({str(removedCase) : 999})
+                
+                gridForPosBoat[rows[boatPlace2nd[0]]].remove({str(boatCase2nd[0]) : 999}) #enlève la case de la grille pour la position des bateaux
+                ships[bat].append(str(boatCase2nd[0]))
+                
+                for j in range(shipSize[str(bat)]-1): # pour placer le bateau
+                    boatCase = list(shipCase[0]) # pour prendre que la key du dict de la case
+                    boatPlace = [*boatCase[0]] # sépare la case en liste
+                    columnBoat = boatPlace[1] # prendre le chiffre de la case
+                    columnBoat = int(columnBoat)
+                    columnBoat += j # pour mettre le bateau
+                    if columnBoat == 9:
+                        break
+                    columnBoat += 1
+                    boatPos = boatPlace[0] + str(columnBoat) # pour ajouter les cases où est le bateau
+                    print(boatPos, "else 247")
+                    print(gridForPosBoat[rows[boatPlace[0]]], "else 248")
+                    ships[bat].append(boatPos)
+                    gridForPosBoat[rows[boatPlace[0]]].remove({boatPos : 999})
+            
+    print(ships)
+
+    # ships = {2 : ["E0", "F0"], 3 : ["C2", "C3", "C4"], 6 : ["B7", "C7", "D7"], 4 : ["E3", "E4", "E5", "E6"], 5 : ["G3", "G4", "G5", "G6", "G7"]} # lsite contenant la localisation des bateaux
 
     for ship in ships:
         for cases in ships[ship]:
             gridCase = [*cases]
-            print(gridCase[1], "gridCase[1]")
-            grid[rows[gridCase[0]]][int(gridCase[1])][cases] = shipSize[str(ship)]
+            grid[rows[gridCase[0]]][int(gridCase[1])][cases] = ship
     
     numbShips = 0
     
     for i in ships.values():
         numbShips += len(i)
-
-    print(grid)
-
+    
     while True:
         screen.fill((0,0,0))
         screen.blit(bgGame, (0,0))
@@ -280,6 +348,7 @@ def solo():
             with open('score.json', 'w') as f:
                 json.dump(scores, f)
 
+            gameMusic.stop()
             main_menu()
 
 def ordi():
@@ -364,6 +433,169 @@ def ordi():
     grid = [] # pour la grille
 
     y = 90 #pour les lignes des boutons sachant que ma fenetre = 720 de large et les 10 boutons prennent 600 de large (60px par bouton) je ne sais comment expliquer mais (720 -600) / 2 = 60 sauf qu'avec 90 ça à l'air un peu près centré
+
+    ships = {2 : [], 3 : [], 6 : [], 4 : [], 5 : []} # liste contenant la localisation des bateaux
+    shipSize = {"2": 2, "3" : 3, "6" : 3,  "4" : 4, "5" : 5} #pour la taille des bateau vu qu'il y a 2 fois un bateau de 3 cases
+    sunkShips = {2 : [], 3 : [], 6 : [], 4 : [], 5 : []} #pour les bateaux coulés
+    gridForPosBoat = []
+
+
+    for row in rows:
+        x = 340
+        gridRow = []
+        gridRowSpé = []
+        for column in columns:
+            buttons[row+column] = Button(image=pygame.image.load("assets/images/Game Square.png"), pos=(x,y), text_input=row+column, font=get_font(25), base_color=(215, 252, 212), hovering_color=(255, 255, 255))
+            x += 60
+            gridRow.append({row+column : 0})
+            gridRowSpé.append({row+column : 999})
+        gridForPosBoat.append(gridRowSpé)
+        grid.append(gridRow)
+        y += 60
+
+
+    for bat in ships: #pour chaque bateau
+        shipRow = random.sample(gridForPosBoat, 1) # séléctionne une ligne au hasard
+        shipCase = random.sample(shipRow[0], 1) #selectionne une case au hasard
+        boatCase1st = list(shipCase[0]) # pour prendre que la key du dict de la case
+        boatPlace1st = [*boatCase1st[0]] # sépare la case en liste
+
+        remainingSpace = 0 #sert à voir si l'espace est suffisant
+        remainingSpace += int(boatPlace1st[1]) #colonne du bateau
+        remainingSpace += shipSize[str(bat)] # taille du bateau
+        remainingSpace = int(remainingSpace)
+        print(remainingSpace)
+        
+        if int(remainingSpace) < int(8):
+            is_not_boat_in_ships = True
+
+            for b in ships:
+                if boatCase1st in ships[b]:
+                    is_not_boat_in_ships = False
+            
+            if is_not_boat_in_ships == True:
+                caseAvant = int(boatPlace1st[1])
+                if caseAvant == 0:
+                    gridForPosBoat[rows[boatPlace1st[0]]].remove({str(boatCase1st[0]) : 999}) #enlève la case de la grille pour la position des bateaux
+                    ships[bat].append(str(boatCase1st[0]))
+                    for i in range(shipSize[str(bat)]-1): # pour placer le bateau
+                        boatCase = list(shipCase[0]) # pour prendre que la key du dict de la case
+                        boatPlace = [*boatCase[0]] # sépare la case en liste
+                        columnBoat = boatPlace[1] # prendre le chiffre de la case
+                        columnBoat = int(columnBoat)
+                        columnBoat += i # pour mettre le bateau
+                        columnBoat += 1
+                        boatPos = boatPlace[0] + str(columnBoat) # pour ajouter les cases où est le bateau
+                        print(gridForPosBoat[rows[boatPlace[0]]])
+                        print(boatPos)
+                        ships[bat].append(boatPos)
+                        gridForPosBoat[rows[boatPlace[0]]].remove({boatPos : 999})
+                else:
+                    caseAvant -= 1
+                    removedCase = boatPlace1st[0] + str(caseAvant)
+                    gridForPosBoat[rows[boatPlace1st[0]]].remove({str(removedCase) : 999}) #enlève la case de la grille pour la position des bateaux
+                    ships[bat].append(str(boatCase1st[0]))
+                    for i in range(shipSize[str(bat)] - 1):
+                        boatCase = list(shipCase[0]) # pour prendre que la key du dict de la case
+                        boatPlace = [*boatCase[0]] # sépare la case en liste
+                        columnBoat = boatPlace[1] # prendre le chiffre de la case
+                        columnBoat = int(columnBoat)
+                        columnBoat += i # pour mettre le bateau
+                        if columnBoat == 9:
+                            break
+                        columnBoat += 1
+                        boatPos = boatPlace[0] + str(columnBoat) # pour ajouter les cases où est le bateau
+                        print(gridForPosBoat[rows[boatPlace[0]]])
+                        print(boatPos)
+                        ships[bat].append(boatPos)
+                        gridForPosBoat[rows[boatPlace[0]]].remove({boatPos : 999})
+        
+        else:
+            shipRow = random.sample(gridForPosBoat, 1) # séléctionne une ligne au hasard
+            shipCase = random.sample(shipRow[0], 1)
+            boatCase2nd = list(shipCase[0]) # pour prendre que la key du dict de la case
+            boatPlace2nd = [*boatCase2nd[0]] # sépare la case en liste
+            remainingSpace = 0 #sert à voir si l'espace est suffisant
+            remainingSpace += int(boatPlace2nd[1])
+            remainingSpace += shipSize[str(bat)]
+            remainingSpace = int(remainingSpace)
+            
+            is_not_boat_in_ships2 = True
+
+            for b in ships:
+                if boatCase1st in ships[b]:
+                    is_not_boat_in_ships2 = False
+
+            while remainingSpace > 8 and is_not_boat_in_ships2 == False:
+                shipRow = random.sample(gridForPosBoat, 1) # séléctionne une ligne au hasard
+                shipCase = random.sample(shipRow[0], 1)
+                boatCase2nd = list(shipCase[0]) # pour prendre que la key du dict de la case
+                boatPlace2nd = [*boatCase2nd[0]] # sépare la case en liste
+                remainingSpace = 0 #sert à voir si l'espace est suffisant
+                remainingSpace += int(boatPlace2nd[1])
+                remainingSpace += shipSize[str(bat)]
+                remainingSpace = int(remainingSpace)
+            
+            
+            print(boatCase2nd[0], "else 207")
+            caseAvant = int(boatPlace2nd[1])
+            if caseAvant == 0:
+                gridForPosBoat[rows[boatPlace2nd[0]]].remove({str(boatCase2nd[0]) : 999}) #enlève la case de la grille pour la position des bateaux
+                ships[bat].append(str(boatCase2nd[0]))
+                
+                for j in range(shipSize[str(bat)]-1): # pour placer le bateau
+                    boatCase = list(shipCase[0]) # pour prendre que la key du dict de la case
+                    boatPlace = [*boatCase[0]] # sépare la case en liste
+                    columnBoat = boatPlace[1] # prendre le chiffre de la case
+                    columnBoat = int(columnBoat)
+                    columnBoat += j # pour mettre le bateau
+                    if columnBoat == 9:
+                        break
+                    columnBoat += 1
+                    boatPos = boatPlace[0] + str(columnBoat) # pour ajouter les cases où est le bateau
+                    print(boatPos, "else 223")
+                    print(gridForPosBoat[rows[boatPlace[0]]], "else 224")
+                    ships[bat].append(boatPos)
+                    gridForPosBoat[rows[boatPlace[0]]].remove({boatPos : 999})
+            else:
+                caseAvant -= 1
+                removedCase = boatPlace2nd[0] + str(caseAvant)
+                print(removedCase, "else 230")
+                print(gridForPosBoat[rows[boatPlace2nd[0]]], "else 231")
+                gridForPosBoat[rows[boatPlace2nd[0]]].remove({str(removedCase) : 999})
+                
+                gridForPosBoat[rows[boatPlace2nd[0]]].remove({str(boatCase2nd[0]) : 999}) #enlève la case de la grille pour la position des bateaux
+                ships[bat].append(str(boatCase2nd[0]))
+                
+                for j in range(shipSize[str(bat)]-1): # pour placer le bateau
+                    boatCase = list(shipCase[0]) # pour prendre que la key du dict de la case
+                    boatPlace = [*boatCase[0]] # sépare la case en liste
+                    columnBoat = boatPlace[1] # prendre le chiffre de la case
+                    columnBoat = int(columnBoat)
+                    columnBoat += j # pour mettre le bateau
+                    if columnBoat == 9:
+                        break
+                    columnBoat += 1
+                    boatPos = boatPlace[0] + str(columnBoat) # pour ajouter les cases où est le bateau
+                    print(boatPos, "else 247")
+                    print(gridForPosBoat[rows[boatPlace[0]]], "else 248")
+                    ships[bat].append(boatPos)
+                    gridForPosBoat[rows[boatPlace[0]]].remove({boatPos : 999})
+            
+    print(ships)
+
+    # ships = {2 : ["E0", "F0"], 3 : ["C2", "C3", "C4"], 6 : ["B7", "C7", "D7"], 4 : ["E3", "E4", "E5", "E6"], 5 : ["G3", "G4", "G5", "G6", "G7"]} # lsite contenant la localisation des bateaux
+
+    for ship in ships:
+        for cases in ships[ship]:
+            gridCase = [*cases]
+            grid[rows[gridCase[0]]][int(gridCase[1])][cases] = ship
+    
+    numbShips = 0
+    
+    for i in ships.values():
+        numbShips += len(i)
+
 
     #création des boutons
     for row in rows:
@@ -823,4 +1055,3 @@ def main_menu():
             clock.tick(60) #nombre d'image par seconde
 
 main_menu()
-#~20h de travail
