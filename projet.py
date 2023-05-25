@@ -32,13 +32,13 @@ bgGame = pygame.image.load("assets/images/background game.jpg")
 bgPos = pygame.image.load("assets/images/background pos.jpg")
 
 #set up des musiques du jeu
-menuMusic = pygame.mixer.Sound("assets/musiques/Menu Music.mp3")
-gameMusic = pygame.mixer.Sound("assets/musiques/Game Music.mp3")
-positioningMusic = pygame.mixer.Sound("assets/musiques/Positioning Music.mp3")
+menuMusic = pygame.mixer.Sound("assets/musiques/Menu Music.wav")
+gameMusic = pygame.mixer.Sound("assets/musiques/Game Music.wav")
+positioningMusic = pygame.mixer.Sound("assets/musiques/Positioning Music.wav")
 
 #son lors du jeu
-explosion = pygame.mixer.Sound("assets/musiques/Explosion.mp3")
-plop = pygame.mixer.Sound("assets/musiques/plop.mp3")
+explosion = pygame.mixer.Sound("assets/musiques/Explosion.wav")
+plop = pygame.mixer.Sound("assets/musiques/plop.wav")
 
 #volume du jeu
 volume = 1.0
@@ -119,7 +119,6 @@ def solo():
 
     """
         pour générer une grille randint et positionner la 1ère et vérifier si pas en bout de grille
-
         Les bâtiments ne doivent jamais se toucher
     """
 
@@ -137,69 +136,47 @@ def solo():
         remainingSpace += int(boatPlace1st[1]) #colonne du bateau
         remainingSpace += shipSize[str(bat)] # taille du bateau
         remainingSpace = int(remainingSpace)
-        print(remainingSpace)
+        print(remainingSpace, boatCase1st)
         
-        if int(remainingSpace) < int(8):
-            is_not_boat_in_ships = True
+        is_not_boat_in_ships = True
 
-            for b in ships:
-                if boatCase1st in ships[b]:
-                    is_not_boat_in_ships = False
+        for b in ships:
+            if boatCase1st in ships[b]:
+                is_not_boat_in_ships = False
             
-            if is_not_boat_in_ships == True:
-                caseAvant = int(boatPlace1st[1])
-                if caseAvant == 0:
-                    gridForPosBoat[rows[boatPlace1st[0]]].remove({str(boatCase1st[0]) : 999}) #enlève la case de la grille pour la position des bateaux
-                    ships[bat].append(str(boatCase1st[0]))
-                    for i in range(shipSize[str(bat)]-1): # pour placer le bateau
-                        boatCase = list(shipCase[0]) # pour prendre que la key du dict de la case
-                        boatPlace = [*boatCase[0]] # sépare la case en liste
-                        columnBoat = boatPlace[1] # prendre le chiffre de la case
-                        columnBoat = int(columnBoat)
-                        columnBoat += i # pour mettre le bateau
-                        columnBoat += 1
-                        boatPos = boatPlace[0] + str(columnBoat) # pour ajouter les cases où est le bateau
-                        print(gridForPosBoat[rows[boatPlace[0]]])
-                        print(boatPos)
-                        ships[bat].append(boatPos)
-                        gridForPosBoat[rows[boatPlace[0]]].remove({boatPos : 999})
-                else:
-                    caseAvant -= 1
-                    removedCase = boatPlace1st[0] + str(caseAvant)
-                    gridForPosBoat[rows[boatPlace1st[0]]].remove({str(removedCase) : 999}) #enlève la case de la grille pour la position des bateaux
-                    ships[bat].append(str(boatCase1st[0]))
-                    for i in range(shipSize[str(bat)] - 1):
-                        boatCase = list(shipCase[0]) # pour prendre que la key du dict de la case
-                        boatPlace = [*boatCase[0]] # sépare la case en liste
-                        columnBoat = boatPlace[1] # prendre le chiffre de la case
-                        columnBoat = int(columnBoat)
-                        columnBoat += i # pour mettre le bateau
-                        if columnBoat == 9:
-                            break
-                        columnBoat += 1
-                        boatPos = boatPlace[0] + str(columnBoat) # pour ajouter les cases où est le bateau
-                        print(gridForPosBoat[rows[boatPlace[0]]])
-                        print(boatPos)
-                        ships[bat].append(boatPos)
-                        gridForPosBoat[rows[boatPlace[0]]].remove({boatPos : 999})
-        
+        if remainingSpace < 8 and is_not_boat_in_ships == True:
+            gridForPosBoat[rows[boatPlace1st[0]]].remove({str(boatCase1st[0]) : 999}) #enlève la case de la grille pour la position des bateaux
+            ships[bat].append(str(boatCase1st[0]))
+            for i in range(shipSize[str(bat)]-1): # pour placer le bateau
+                boatCase = list(shipCase[0]) # pour prendre que la key du dict de la case
+                boatPlace = [*boatCase[0]] # sépare la case en liste
+                columnBoat = boatPlace[1] # prendre le chiffre de la case
+                columnBoat = int(columnBoat)
+                columnBoat += i # pour mettre le bateau
+                columnBoat += 1
+                boatPos = boatPlace[0] + str(columnBoat) # pour ajouter les cases où est le bateau
+                print(gridForPosBoat[rows[boatPlace[0]]])
+                print(boatPos)
+                ships[bat].append(boatPos)
+                gridForPosBoat[rows[boatPlace[0]]].remove({boatPos : 999})
+
         else:
             shipRow = random.sample(gridForPosBoat, 1) # séléctionne une ligne au hasard
             shipCase = random.sample(shipRow[0], 1)
             boatCase2nd = list(shipCase[0]) # pour prendre que la key du dict de la case
             boatPlace2nd = [*boatCase2nd[0]] # sépare la case en liste
             remainingSpace = 0 #sert à voir si l'espace est suffisant
-            remainingSpace += int(boatPlace2nd[1])
-            remainingSpace += shipSize[str(bat)]
+            remainingSpace += int(boatPlace2nd[1]) #prend la position de la case du bateau
+            remainingSpace += shipSize[str(bat)] # prend la taille du bateau
             remainingSpace = int(remainingSpace)
             
-            is_not_boat_in_ships2 = True
+            is_not_boat_in_ships = True
 
             for b in ships:
-                if boatCase1st in ships[b]:
-                    is_not_boat_in_ships2 = False
+                if boatCase2nd in ships[b]:
+                    is_not_boat_in_ships = False
 
-            while remainingSpace > 8 and is_not_boat_in_ships2 == False:
+            while remainingSpace > 8 and is_not_boat_in_ships == False:
                 shipRow = random.sample(gridForPosBoat, 1) # séléctionne une ligne au hasard
                 shipCase = random.sample(shipRow[0], 1)
                 boatCase2nd = list(shipCase[0]) # pour prendre que la key du dict de la case
@@ -208,52 +185,25 @@ def solo():
                 remainingSpace += int(boatPlace2nd[1])
                 remainingSpace += shipSize[str(bat)]
                 remainingSpace = int(remainingSpace)
+                
+            print(boatCase2nd[0], "else 212")
+            gridForPosBoat[rows[boatPlace2nd[0]]].remove({str(boatCase2nd[0]) : 999}) #enlève la case de la grille pour la position des bateaux
+            ships[bat].append(str(boatCase2nd[0]))
             
-            
-            print(boatCase2nd[0], "else 207")
-            caseAvant = int(boatPlace2nd[1])
-            if caseAvant == 0:
-                gridForPosBoat[rows[boatPlace2nd[0]]].remove({str(boatCase2nd[0]) : 999}) #enlève la case de la grille pour la position des bateaux
-                ships[bat].append(str(boatCase2nd[0]))
-                
-                for j in range(shipSize[str(bat)]-1): # pour placer le bateau
-                    boatCase = list(shipCase[0]) # pour prendre que la key du dict de la case
-                    boatPlace = [*boatCase[0]] # sépare la case en liste
-                    columnBoat = boatPlace[1] # prendre le chiffre de la case
-                    columnBoat = int(columnBoat)
-                    columnBoat += j # pour mettre le bateau
-                    if columnBoat == 9:
-                        break
-                    columnBoat += 1
-                    boatPos = boatPlace[0] + str(columnBoat) # pour ajouter les cases où est le bateau
-                    print(boatPos, "else 223")
-                    print(gridForPosBoat[rows[boatPlace[0]]], "else 224")
-                    ships[bat].append(boatPos)
-                    gridForPosBoat[rows[boatPlace[0]]].remove({boatPos : 999})
-            else:
-                caseAvant -= 1
-                removedCase = boatPlace2nd[0] + str(caseAvant)
-                print(removedCase, "else 230")
-                print(gridForPosBoat[rows[boatPlace2nd[0]]], "else 231")
-                gridForPosBoat[rows[boatPlace2nd[0]]].remove({str(removedCase) : 999})
-                
-                gridForPosBoat[rows[boatPlace2nd[0]]].remove({str(boatCase2nd[0]) : 999}) #enlève la case de la grille pour la position des bateaux
-                ships[bat].append(str(boatCase2nd[0]))
-                
-                for j in range(shipSize[str(bat)]-1): # pour placer le bateau
-                    boatCase = list(shipCase[0]) # pour prendre que la key du dict de la case
-                    boatPlace = [*boatCase[0]] # sépare la case en liste
-                    columnBoat = boatPlace[1] # prendre le chiffre de la case
-                    columnBoat = int(columnBoat)
-                    columnBoat += j # pour mettre le bateau
-                    if columnBoat == 9:
-                        break
-                    columnBoat += 1
-                    boatPos = boatPlace[0] + str(columnBoat) # pour ajouter les cases où est le bateau
-                    print(boatPos, "else 247")
-                    print(gridForPosBoat[rows[boatPlace[0]]], "else 248")
-                    ships[bat].append(boatPos)
-                    gridForPosBoat[rows[boatPlace[0]]].remove({boatPos : 999})
+            for j in range(shipSize[str(bat)]-1): # pour placer le bateau
+                boatCase2nd = list(shipCase[0]) # pour prendre que la key du dict de la case
+                boatPlace2nd = [*boatCase2nd[0]] # sépare la case en liste
+                columnBoat = boatPlace2nd[1] # prendre le chiffre de la case
+                columnBoat = int(columnBoat)
+                columnBoat += j # pour mettre le bateau
+                if columnBoat == 9:
+                    break
+                columnBoat += 1
+                boatPos = boatPlace2nd[0] + str(columnBoat) # pour ajouter les cases où est le bateau
+                print(boatPos, "else 228")
+                print(gridForPosBoat[rows[boatPlace2nd[0]]], "else 229")
+                ships[bat].append(boatPos)
+                gridForPosBoat[rows[boatPlace2nd[0]]].remove({boatPos : 999})
             
     print(ships)
 
@@ -297,7 +247,7 @@ def solo():
                         if grid[rows[Gridcase[0]]][int(Gridcase[1])][button] >= 2: # vérifie si il y a un bateau sur la case
                             if button in ships[grid[rows[Gridcase[0]]][int(Gridcase[1])][button]]: # verifie si il y a bel et bien le bateau
                                 if button in successfulShoots: #vérifie si la case à déjà été torpillée
-                                    print("case déja devinée") # mettre un message si déjà torpilée autre que dans la console
+                                    messagebox.showwarning(title="CASE", message="Vous avez déjà torpillé cet endroit !") # mettre un message si déjà torpilée autre que dans la console
         
                                 else:
                                     successfulShoots.append(button)
@@ -309,15 +259,17 @@ def solo():
                                     if ships[grid[rows[Gridcase[0]]][int(Gridcase[1])][button]] == []:
                                         ships[grid[rows[Gridcase[0]]][int(Gridcase[1])][button]] = "coulé"
                                         for but in sunkShips[grid[rows[Gridcase[0]]][int(Gridcase[1])][button]]:
-                                            buttons[but].changeImage(image=pygame.image.load("assets/images/wood.png"), screen=screen)                
+                                            buttons[but].changeImage(image=pygame.image.load("assets/images/wood.png"), screen=screen)
+                                        messagebox.showinfo(title="COULÉ", message="Vous avez coulé un beateau ennemi !")
                         else:
                             if button in failedShoots:
-                                print("case déja devinée")
+                                messagebox.showwarning(title="CASE", message="Vous avez déjà torpillé cet endroit")
                             else:
                                 failedShoots.append(button) #ajouts des cases où le tir est raté
                                 plop.play() # joue le son d'un objet tombant dans l'eau comme la torpille
                                 buttons[button].changeImage(image=pygame.image.load("assets/images/rate.png"), screen=screen)
                                 score -= 3 # enlève 3 de score si la case est vide
+                                messagebox.showinfo(title="TORPILLE", message="Vous avez torpillé dans l'eau !")
 
                 #pour quitter avec echap
             elif event.type == KEYDOWN:
@@ -397,7 +349,7 @@ def ordi():
                 for button in userButtons:
                     if userButtons[button].checkForInput(ordi1_mouse_pos):
                         if button in userShips:
-                            print("BATEAU DEJA PLACE ICI")
+                            messagebox.showerror(title="CASE", message="Vous avez déjà placé un bateau ici !")
                         else:
                             userShips.append(button)
                             userButtons[button].changeImage(image=pygame.image.load("assets/images/rate.png"), screen=screen)
@@ -421,7 +373,6 @@ def ordi():
     columns = ["0","1","2","3","4","5","6","7","8","9"] # colonnes
     rows = {"A":0, "B":1, "C":2, "D":3, "E":4, "F":5, "G":6, "H":7, "I":8, "J":9}
 
-    comptShips = ["E0", "F0", "C2", "C3", "C4", "B7", "C7", "D7", "E3", "E4", "E5", "E6", "G3", "G4", "G5", "G6", "G7"] # lsite contenant la localisation des bateaux
 
     failedUserShoots = [] #pour mettre les tirs ratés du joueur
     successfulUserShoots = [] #tirs réussis du joueur
@@ -434,170 +385,32 @@ def ordi():
 
     y = 90 #pour les lignes des boutons sachant que ma fenetre = 720 de large et les 10 boutons prennent 600 de large (60px par bouton) je ne sais comment expliquer mais (720 -600) / 2 = 60 sauf qu'avec 90 ça à l'air un peu près centré
 
-    ships = {2 : [], 3 : [], 6 : [], 4 : [], 5 : []} # liste contenant la localisation des bateaux
-    shipSize = {"2": 2, "3" : 3, "6" : 3,  "4" : 4, "5" : 5} #pour la taille des bateau vu qu'il y a 2 fois un bateau de 3 cases
-    sunkShips = {2 : [], 3 : [], 6 : [], 4 : [], 5 : []} #pour les bateaux coulés
-    gridForPosBoat = []
-
-
     for row in rows:
         x = 340
         gridRow = []
-        gridRowSpé = []
         for column in columns:
             buttons[row+column] = Button(image=pygame.image.load("assets/images/Game Square.png"), pos=(x,y), text_input=row+column, font=get_font(25), base_color=(215, 252, 212), hovering_color=(255, 255, 255))
             x += 60
             gridRow.append({row+column : 0})
-            gridRowSpé.append({row+column : 999})
-        gridForPosBoat.append(gridRowSpé)
         grid.append(gridRow)
         y += 60
 
 
-    for bat in ships: #pour chaque bateau
-        shipRow = random.sample(gridForPosBoat, 1) # séléctionne une ligne au hasard
-        shipCase = random.sample(shipRow[0], 1) #selectionne une case au hasard
-        boatCase1st = list(shipCase[0]) # pour prendre que la key du dict de la case
-        boatPlace1st = [*boatCase1st[0]] # sépare la case en liste
+    comptships = {2 : ["E0", "F0"], 3 : ["C2", "C3", "C4"], 6 : ["B7", "C7", "D7"], 4 : ["E3", "E4", "E5", "E6"], 5 : ["G3", "G4", "G5", "G6", "G7"]} # lsite contenant la localisation des bateaux
 
-        remainingSpace = 0 #sert à voir si l'espace est suffisant
-        remainingSpace += int(boatPlace1st[1]) #colonne du bateau
-        remainingSpace += shipSize[str(bat)] # taille du bateau
-        remainingSpace = int(remainingSpace)
-        print(remainingSpace)
-        
-        if int(remainingSpace) < int(8):
-            is_not_boat_in_ships = True
-
-            for b in ships:
-                if boatCase1st in ships[b]:
-                    is_not_boat_in_ships = False
-            
-            if is_not_boat_in_ships == True:
-                caseAvant = int(boatPlace1st[1])
-                if caseAvant == 0:
-                    gridForPosBoat[rows[boatPlace1st[0]]].remove({str(boatCase1st[0]) : 999}) #enlève la case de la grille pour la position des bateaux
-                    ships[bat].append(str(boatCase1st[0]))
-                    for i in range(shipSize[str(bat)]-1): # pour placer le bateau
-                        boatCase = list(shipCase[0]) # pour prendre que la key du dict de la case
-                        boatPlace = [*boatCase[0]] # sépare la case en liste
-                        columnBoat = boatPlace[1] # prendre le chiffre de la case
-                        columnBoat = int(columnBoat)
-                        columnBoat += i # pour mettre le bateau
-                        columnBoat += 1
-                        boatPos = boatPlace[0] + str(columnBoat) # pour ajouter les cases où est le bateau
-                        print(gridForPosBoat[rows[boatPlace[0]]])
-                        print(boatPos)
-                        ships[bat].append(boatPos)
-                        gridForPosBoat[rows[boatPlace[0]]].remove({boatPos : 999})
-                else:
-                    caseAvant -= 1
-                    removedCase = boatPlace1st[0] + str(caseAvant)
-                    gridForPosBoat[rows[boatPlace1st[0]]].remove({str(removedCase) : 999}) #enlève la case de la grille pour la position des bateaux
-                    ships[bat].append(str(boatCase1st[0]))
-                    for i in range(shipSize[str(bat)] - 1):
-                        boatCase = list(shipCase[0]) # pour prendre que la key du dict de la case
-                        boatPlace = [*boatCase[0]] # sépare la case en liste
-                        columnBoat = boatPlace[1] # prendre le chiffre de la case
-                        columnBoat = int(columnBoat)
-                        columnBoat += i # pour mettre le bateau
-                        if columnBoat == 9:
-                            break
-                        columnBoat += 1
-                        boatPos = boatPlace[0] + str(columnBoat) # pour ajouter les cases où est le bateau
-                        print(gridForPosBoat[rows[boatPlace[0]]])
-                        print(boatPos)
-                        ships[bat].append(boatPos)
-                        gridForPosBoat[rows[boatPlace[0]]].remove({boatPos : 999})
-        
-        else:
-            shipRow = random.sample(gridForPosBoat, 1) # séléctionne une ligne au hasard
-            shipCase = random.sample(shipRow[0], 1)
-            boatCase2nd = list(shipCase[0]) # pour prendre que la key du dict de la case
-            boatPlace2nd = [*boatCase2nd[0]] # sépare la case en liste
-            remainingSpace = 0 #sert à voir si l'espace est suffisant
-            remainingSpace += int(boatPlace2nd[1])
-            remainingSpace += shipSize[str(bat)]
-            remainingSpace = int(remainingSpace)
-            
-            is_not_boat_in_ships2 = True
-
-            for b in ships:
-                if boatCase1st in ships[b]:
-                    is_not_boat_in_ships2 = False
-
-            while remainingSpace > 8 and is_not_boat_in_ships2 == False:
-                shipRow = random.sample(gridForPosBoat, 1) # séléctionne une ligne au hasard
-                shipCase = random.sample(shipRow[0], 1)
-                boatCase2nd = list(shipCase[0]) # pour prendre que la key du dict de la case
-                boatPlace2nd = [*boatCase2nd[0]] # sépare la case en liste
-                remainingSpace = 0 #sert à voir si l'espace est suffisant
-                remainingSpace += int(boatPlace2nd[1])
-                remainingSpace += shipSize[str(bat)]
-                remainingSpace = int(remainingSpace)
-            
-            
-            print(boatCase2nd[0], "else 207")
-            caseAvant = int(boatPlace2nd[1])
-            if caseAvant == 0:
-                gridForPosBoat[rows[boatPlace2nd[0]]].remove({str(boatCase2nd[0]) : 999}) #enlève la case de la grille pour la position des bateaux
-                ships[bat].append(str(boatCase2nd[0]))
-                
-                for j in range(shipSize[str(bat)]-1): # pour placer le bateau
-                    boatCase = list(shipCase[0]) # pour prendre que la key du dict de la case
-                    boatPlace = [*boatCase[0]] # sépare la case en liste
-                    columnBoat = boatPlace[1] # prendre le chiffre de la case
-                    columnBoat = int(columnBoat)
-                    columnBoat += j # pour mettre le bateau
-                    if columnBoat == 9:
-                        break
-                    columnBoat += 1
-                    boatPos = boatPlace[0] + str(columnBoat) # pour ajouter les cases où est le bateau
-                    print(boatPos, "else 223")
-                    print(gridForPosBoat[rows[boatPlace[0]]], "else 224")
-                    ships[bat].append(boatPos)
-                    gridForPosBoat[rows[boatPlace[0]]].remove({boatPos : 999})
-            else:
-                caseAvant -= 1
-                removedCase = boatPlace2nd[0] + str(caseAvant)
-                print(removedCase, "else 230")
-                print(gridForPosBoat[rows[boatPlace2nd[0]]], "else 231")
-                gridForPosBoat[rows[boatPlace2nd[0]]].remove({str(removedCase) : 999})
-                
-                gridForPosBoat[rows[boatPlace2nd[0]]].remove({str(boatCase2nd[0]) : 999}) #enlève la case de la grille pour la position des bateaux
-                ships[bat].append(str(boatCase2nd[0]))
-                
-                for j in range(shipSize[str(bat)]-1): # pour placer le bateau
-                    boatCase = list(shipCase[0]) # pour prendre que la key du dict de la case
-                    boatPlace = [*boatCase[0]] # sépare la case en liste
-                    columnBoat = boatPlace[1] # prendre le chiffre de la case
-                    columnBoat = int(columnBoat)
-                    columnBoat += j # pour mettre le bateau
-                    if columnBoat == 9:
-                        break
-                    columnBoat += 1
-                    boatPos = boatPlace[0] + str(columnBoat) # pour ajouter les cases où est le bateau
-                    print(boatPos, "else 247")
-                    print(gridForPosBoat[rows[boatPlace[0]]], "else 248")
-                    ships[bat].append(boatPos)
-                    gridForPosBoat[rows[boatPlace[0]]].remove({boatPos : 999})
-            
-    print(ships)
-
-    # ships = {2 : ["E0", "F0"], 3 : ["C2", "C3", "C4"], 6 : ["B7", "C7", "D7"], 4 : ["E3", "E4", "E5", "E6"], 5 : ["G3", "G4", "G5", "G6", "G7"]} # lsite contenant la localisation des bateaux
-
-    for ship in ships:
-        for cases in ships[ship]:
+    for ship in comptships:
+        for cases in comptships[ship]:
             gridCase = [*cases]
             grid[rows[gridCase[0]]][int(gridCase[1])][cases] = ship
     
     numbShips = 0
     
-    for i in ships.values():
+    for i in comptships.values():
         numbShips += len(i)
 
 
     #création des boutons
+    y = 90
     for row in rows:
         x = 340
         for column in columns:
@@ -614,13 +427,14 @@ def ordi():
             userGrid.remove(shoot)
             explosion.play()
             sleep(2.0)
-            print("Votre bateau en", shoot, "a été touché")
+            messagebox.showwarning(title="TOUCHÉ", message=f"Vous avez été touché en {shoot}")
+
             ordiTurn()
         else:
             userGrid.remove(shoot)
             FailedOrdiShoots.append(shoot)
             plop.play()
-            print("Une torpille a été envoyée en", shoot, "mais hereusement rien a été touché")
+            messagebox.showinfo(title="TIR ENNEMI !", message=f"Une torpille a été envoyée en {shoot} mais aucun de vos bateaux n'y était !")
 
     while True:
 
@@ -639,20 +453,22 @@ def ordi():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 for button in buttons:
                     if buttons[button].checkForInput(ordi2_mouse_pos):
-                        if button in comptShips:
+                        if button in comptships:
                             if button in successfulUserShoots:
-                                print("TU AS DEJA TORPILLE ICI")
+                                messagebox.showerror(title="CASE", message="Vous avez déjà torpillé ici !")
                             else:
                                 successfulUserShoots.append(button)
                                 explosion.play()
                                 buttons[button].changeImage(image=pygame.image.load("assets/images/explosion.png"), screen=screen) # change l'image en explosion car il y a un bateau qui a été touché par la torpille
+                                messagebox.showinfo(title="TOUCHÉ", message="Vous avez touché un bateau ennemi !")
                         else:
                             if button in failedUserShoots:
-                                print("TU AS DEJA TORPILLE ICI")
+                                messagebox.showerror(title="CASE", message="Vous avez déjà torpillé ici !")
                             else:
                                 failedUserShoots.append(button)
                                 buttons[button].changeImage(image=pygame.image.load("assets/images/rate.png"), screen=screen)
                                 plop.play()
+                                messagebox.showwarning(title="TORPILLE", message="Vous n'avez touché aucun bateau ennemi !")
                                 ordiTurn()
 
             elif event.type == KEYDOWN:
@@ -667,15 +483,15 @@ def ordi():
 
         if len(successfulOrdiShoots) == 17 or len(successfulUserShoots) == 17:
             if len(successfulOrdiShoots) == 17:
-                print("Faut vraiment le faire car il tirait aléatoirement !")
+                messagebox.showerror(title="VOUS AVEZ PERDU !", message="Faut vraiment le faire car il tirait aléatoirement !")
                 gameMusic.stop()
                 main_menu()
             elif len(successfulUserShoots) == 17:
-                print("Vous avez gagné contre l'ordi qui tirait aléatoirement")
+                messagebox.showinfo(title="VOUS AVEZ GAGNÉ !",message="Vous avez gagné contre l'ordi qui tirait aléatoirement")
                 gameMusic.stop()
                 main_menu()
             else:
-                print("comment en êtes-vous arrivé là ?")
+                messagebox.showerror(title="????", message="comment en êtes-vous arrivé là ?")
                 gameMusic.stop()
                 main_menu()
 
@@ -729,7 +545,7 @@ def multiLocal():
                 for button in player1Buttons:
                     if player1Buttons[button].checkForInput(player1_mouse_pos):
                         if button in player1Ships:
-                            print("BATEAU DEJA PLACE ICI")
+                            messagebox.showerror(title="CASE", message="Vous avez déjà placé un bateau ici !")
                         else:
                             player1Ships.append(button)
                             player1Buttons[button].changeImage(image=pygame.image.load("assets/images/rate.png"), screen=screen)
@@ -781,7 +597,7 @@ def multiLocal():
                 for button in player2Buttons:
                     if player2Buttons[button].checkForInput(player2_mouse_pos):
                         if button in player2Ships:
-                            print("BATEAU DEJA PLACE ICI")
+                            messagebox.showerror(title="CASE", message="Vous avez déjà placé un bateau ici !")
                         else:
                             player2Ships.append(button)
                             player2Buttons[button].changeImage(image=pygame.image.load("assets/images/rate.png"), screen=screen)
@@ -852,18 +668,20 @@ def multiLocal():
                         if player1Buttons[button].checkForInput(player2_mouse_pos):
                             if button in player1Ships:
                                 if button in successfulPlayer2Shoots:
-                                    print("Tu as déjà torpillé ici")
+                                    messagebox.showerror(title="CASE", message="Vous avez déjà torpillé ici !")
                                         
                                 else:
                                     successfulPlayer2Shoots.append(button)
                                     explosion.play()
                                     player1Buttons[button].changeImage(image=pygame.image.load("assets/images/explosion.png"), screen=screen)
                                     if len(successfulPlayer2Shoots) == 17:
-                                        print("Le joueur 2 a gagné !")
+                                        messagebox.showinfo(title="", message="Le joueur 2 a gagné !")
+                                        gameMusic.stop()
+                                        main_menu()
 
                             else:
                                 if button in failedPlayer2Shoots:
-                                    print("tu as déjà torpillé ici")
+                                    messagebox.showerror(title="CASE", message="Vous avez déjà torpillé ici !")
                                 else:
                                     player1Buttons[button].changeImage(image=pygame.image.load("assets/images/rate.png"), screen=screen)
                                     failedPlayer2Shoots.append(button)
@@ -898,15 +716,19 @@ def multiLocal():
                     if player2Buttons[button].checkForInput(player1_mouse_pos):
                         if button in player2Ships:
                             if button in successfulPlayer1Shoots:
-                                print("Tu as déjà torpillé ici")
+                                messagebox.showerror(title="CASE", message="Vous avez déjà torpillé ici !")
 
                             else:
                                 successfulPlayer1Shoots.append(button)
                                 explosion.play()
                                 player2Buttons[button].changeImage(image=pygame.image.load("assets/images/explosion.png"), screen=screen)
+                                if len(successfulPlayer1Shoots) == 17:
+                                    messagebox.showinfo(title="", message="Le joueur 1 a gagné !")
+                                    gameMusic.stop()
+                                    main_menu()
                         else:
                             if button in failedPlayer1Shoots:
-                                print("tu as déjà torpillé ici")
+                                messagebox.showerror(title="CASE", message="Vous avez déjà torpillé ici !")
                             else:
                                 failedPlayer1Shoots.append(button)
                                 player2Buttons[button].changeImage(image=pygame.image.load("assets/images/rate.png"), screen=screen)
